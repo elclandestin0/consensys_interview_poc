@@ -4,7 +4,7 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract NFTPlatform {
-    // structs
+    // Structs
     struct Bid {
         address tokenContract;
         uint256 askAmount;
@@ -13,10 +13,15 @@ contract NFTPlatform {
         uint256 tokenId;
     }
 
-    // storage
+    // Storage
     mapping (uint32 => Bid) public bids;
+    mapping (address => Bid[]) public acceptedBids;
+    mapping (address => bool) public acceptedTokens;
 
-    // events
+    // Policy ID
+    uint32 public nextBidId = 1;
+
+    // Events
     event CreateBid(
         address tokenContract,
         uint256 askAmount,
@@ -25,7 +30,6 @@ contract NFTPlatform {
         address from
     );
 
-    
     event AcceptBid(
         uint32 bidId,
         address from,
@@ -40,4 +44,34 @@ contract NFTPlatform {
         address nftContract,
         uint256 tokenId
     );
+
+    constructor(address acceptedToken) {
+        acceptedTokens[acceptedToken] = true;
+    }
+
+    // Modifiers 
+    modifier onlyAcceptedTokens(address tokenAddress) {
+        require(acceptedTokens[tokenAddress], "Not an accepted token address!");
+        _;
+    }
+
+    // Functions
+    function createBid(address _tokenAddress, uint256 _amount, address _nftContract, uint256 _tokenId) public onlyAcceptedTokens(_tokenAddress) {
+        Bid memory newBid = Bid({
+            tokenContract: _tokenAddress,
+            askAmount: _amount,
+            nftContract: _nftContract,
+            tokenId: _tokenId,
+            from: msg.sender
+        });
+        bids[nextBidId] = newBid;
+         emit CreateBid(
+            _tokenAddress,
+            _amount,
+            _nftContract,
+            _tokenId,
+            msg.sender
+         );
+         nextBidId++;
+    }
 }

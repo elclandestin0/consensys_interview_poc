@@ -1,5 +1,4 @@
-import { Flex, Card, Heading } from "@chakra-ui/react";
-import { Inter } from "next/font/google";
+import { Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import MetaMaskConnect from "@/components/MetaMaskConnect";
 import { useSDK } from "@metamask/sdk-react";
@@ -7,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
   const { connected } = useSDK();
-
+  
   useEffect(() => {
     console.log(connected);
   }, [connected]);

@@ -1,13 +1,13 @@
 // src/components/MetaMaskConnect.tsx
 import { Button } from '@chakra-ui/react';
-import { useMetaMask } from '../contexts/MetaMaskContext';
+import { useSDK } from '@metamask/sdk-react';
 
 const MetaMaskConnect: React.FC = () => {
-    const { isConnected, connectWallet } = useMetaMask();
+    const { connected, sdk } = useSDK();
 
     return (
-        <Button colorScheme="teal" onClick={connectWallet} disabled={isConnected} size="lg">
-            {isConnected ? 'Connected' : 'Connect to MetaMask'}
+        <Button colorScheme="teal" onClick={()=>{sdk?.connect()}} disabled={connected} size="lg" mt={8}>
+            {connected ? 'Connected' : 'Connect to MetaMask'}
         </Button>
     );
 };

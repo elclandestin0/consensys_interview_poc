@@ -4,7 +4,6 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract NFTPlatform {
-
     // structs
     struct Bid {
         address tokenContract;
@@ -34,12 +33,11 @@ contract NFTPlatform {
         uint32 duration
     );
 
-    event PayPrincipal(uint32 policyId);
+    event PayPrincipal(uint32 bidId, address tokenPaidIn, uint256 amountPaid);
     
     event DefaultLoan(
-        uint32 indexed policyId,
-        address indexed claimant,
-        uint256 amount,
-        bool isPremium
+        uint32 bidId,
+        address nftContract,
+        uint256 tokenId
     );
 }

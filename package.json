@@ -1,0 +1,26 @@
+{
+  "name": "consensys_interview_poc",
+  "version": "1.0.0",
+  "description": "Consensys Full-stack Enablement Interview PoC",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elclandestin0/consensys_interview_poc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elclandestin0/consensys_interview_poc/issues"
+  },
+  "homepage": "https://github.com/elclandestin0/consensys_interview_poc#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "truffle": "^5.11.5"
+  }
+}

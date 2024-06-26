@@ -4,6 +4,8 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
+
 
 contract NFTPlatform {
     // Structs
@@ -76,6 +78,7 @@ contract NFTPlatform {
         address _nftContract,
         uint256 _tokenId
     ) public {
+        console.log("here 0");
         IERC721 nft = IERC721(_nftContract);
         require(
             nft.ownerOf(_tokenId) == msg.sender,
@@ -83,6 +86,7 @@ contract NFTPlatform {
         );
         nft.safeTransferFrom(msg.sender, address(this), _tokenId);
 
+        console.log("here");
         Bid memory newBid = Bid({
             bidId: nextBidId,
             tokenContract: _tokenAddress,
@@ -136,14 +140,11 @@ contract NFTPlatform {
             defaulted: false,
             lender: msg.sender
         });
-
-        loans[bid.bidId] = loan;
     }
 
     function repayLoan(uint32 bidId) public {
         Bid storage bid = bids[bidId];
         require(bid.accepted, "Can't repay bid if not accepted");
-        
         // can remove below require if you want to incentivize users to pay for other people's loans
         require(
             bid.from == msg.sender,
@@ -153,7 +154,7 @@ contract NFTPlatform {
 
         // can remove comment below and comment out `interest` variable for a more robust interest calc.
         // uint256 customInterest = calculateInterest(bid.askAmount, bid.dueDate - block.timestamp)
-        uint256 interest = 10000;
+        uint256 interest = 1000;
         uint256 totalPaymentRequired = bid.askAmount + interest;
 
         require(token.balanceOf(msg.sender) >= totalPaymentRequired);
@@ -169,7 +170,6 @@ contract NFTPlatform {
     }
 
     function defaultLoan(uint32 bidId) public {
-        // optional: add a require so it can only be executable by the lender when duration has passed
         Bid storage bid = bids[bidId];
         require(bid.accepted, "Bid must be accepted");
         // add more requires depending on how deep you want your protocol tog o

@@ -11,12 +11,14 @@ contract NFTPlatform {
         address from;
         address nftContract;
         uint256 tokenId;
+        bool accepted;
     }
 
     // Storage
-    mapping (uint32 => Bid) public bids;
-    mapping (address => Bid[]) public acceptedBids;
-    mapping (address => bool) public acceptedTokens;
+    mapping(uint32 => Bid) public bids;
+    mapping(address => Bid[]) public acceptedBids;
+    mapping(address => bool) public acceptedTokens;
+    mapping(address => bool) public acceptedNFTs;
 
     // Policy ID
     uint32 public nextBidId = 1;
@@ -38,40 +40,64 @@ contract NFTPlatform {
     );
 
     event PayPrincipal(uint32 bidId, address tokenPaidIn, uint256 amountPaid);
-    
-    event DefaultLoan(
-        uint32 bidId,
-        address nftContract,
-        uint256 tokenId
-    );
+
+    event DefaultLoan(uint32 bidId, address nftContract, uint256 tokenId);
 
     constructor(address acceptedToken) {
         acceptedTokens[acceptedToken] = true;
     }
 
-    // Modifiers 
+    // Modifiers
     modifier onlyAcceptedTokens(address tokenAddress) {
         require(acceptedTokens[tokenAddress], "Not an accepted token address!");
         _;
     }
 
+    // Modifiers
+    modifier onlyAcceptedNFTs(address nftAddress) {
+        require(acceptedNFTs[nftAddress], "Not an accepted token address!");
+        _;
+    }
+
     // Functions
-    function createBid(address _tokenAddress, uint256 _amount, address _nftContract, uint256 _tokenId) public onlyAcceptedTokens(_tokenAddress) {
+    function createBid(
+        address _tokenAddress,
+        uint256 _amount,
+        address _nftContract,
+        uint256 _tokenId
+    ) public {
         Bid memory newBid = Bid({
             tokenContract: _tokenAddress,
             askAmount: _amount,
             nftContract: _nftContract,
             tokenId: _tokenId,
-            from: msg.sender
+            from: msg.sender,
+            accepted: false
         });
         bids[nextBidId] = newBid;
-         emit CreateBid(
+        emit CreateBid(
             _tokenAddress,
             _amount,
             _nftContract,
             _tokenId,
             msg.sender
-         );
-         nextBidId++;
+        );
+        nextBidId++;
     }
+    function acceptBid(uint32 bidId, uint256 duration) public onlyAcceptedTokens(bids[bidId].tokenContract) {
+        Bid storage bid = bids[bidId];
+        require(!bid.accepted, "Bid already accepted");
+
+        IERC20 token = IERC20(bid.tokenContract);
+        require(token.transferFrom(msg.sender, bid.from, bid.askAmount), "Token transfer failed");
+
+        bid.accepted = true;
+        bid.dueDate = block.timestamp + duration;
+
+        IERC721 nft = IERC721(bid.nftContract);
+        require(nft.ownerOf(bid.tokenId) == address(this), "NFT is not staked in the contract");
+
+        emit BidAccepted(bidId, msg.sender, bid.dueDate);
+    }
+
 }

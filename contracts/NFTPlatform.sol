@@ -4,10 +4,10 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "hardhat/console.sol";
 
-
-contract NFTPlatform {
+contract NFTPlatform is IERC721Receiver {
     // Structs
     struct Bid {
         uint32 bidId;
@@ -78,15 +78,12 @@ contract NFTPlatform {
         address _nftContract,
         uint256 _tokenId
     ) public {
-        console.log("here 0");
         IERC721 nft = IERC721(_nftContract);
         require(
             nft.ownerOf(_tokenId) == msg.sender,
             "Must own the token to send!"
         );
         nft.safeTransferFrom(msg.sender, address(this), _tokenId);
-
-        console.log("here");
         Bid memory newBid = Bid({
             bidId: nextBidId,
             tokenContract: _tokenAddress,
@@ -96,7 +93,7 @@ contract NFTPlatform {
             from: msg.sender,
             accepted: false
         });
-        bids[nextBidId] = newBid;
+        bids[++nextBidId] = newBid;
         emit BidCreated(
             _tokenAddress,
             _amount,
@@ -104,7 +101,6 @@ contract NFTPlatform {
             _tokenId,
             msg.sender
         );
-        nextBidId++;
     }
 
     function acceptBid(
@@ -179,5 +175,14 @@ contract NFTPlatform {
         nft.safeTransferFrom(address(this), msg.sender, bid.tokenId);
 
         emit LoanDefaulted(bid.bidId);
+    }
+
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 }

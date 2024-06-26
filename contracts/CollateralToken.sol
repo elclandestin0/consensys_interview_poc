@@ -7,15 +7,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract CollateralToken is ERC721, Ownable {
-    uint256 private _tokenIdCounter;
+    uint256 public currentTokenId;
 
     constructor(
         address initialOwner
     ) ERC721("ConsensysCollateralToken", "CSYS") Ownable(initialOwner) {}
 
     function mint(address to) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter;
-        _tokenIdCounter++;
+        uint256 tokenId = ++currentTokenId;
         _safeMint(to, tokenId);
     }
 }

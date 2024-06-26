@@ -18,12 +18,8 @@ export interface BidAccepted {
   args: {
     bidId: BN;
     from: string;
-    initialPremiumFee: BN;
-    duration: BN;
     0: BN;
     1: string;
-    2: BN;
-    3: BN;
   };
 }
 
@@ -47,16 +43,12 @@ export interface LoanDefaulted {
   name: "LoanDefaulted";
   args: {
     bidId: BN;
-    nftContract: string;
-    tokenId: BN;
     0: BN;
-    1: string;
-    2: BN;
   };
 }
 
-export interface PrincipalPaid {
-  name: "PrincipalPaid";
+export interface LoanRepaid {
+  name: "LoanRepaid";
   args: {
     bidId: BN;
     tokenPaidIn: string;
@@ -67,14 +59,22 @@ export interface PrincipalPaid {
   };
 }
 
-type AllEvents = BidAccepted | BidCreated | LoanDefaulted | PrincipalPaid;
+type AllEvents = BidAccepted | BidCreated | LoanDefaulted | LoanRepaid;
 
 export interface NFTPlatformInstance extends Truffle.ContractInstance {
-  acceptedBids(
+  acceptedLoans(
     arg0: string,
     arg1: number | BN | string,
     txDetails?: Truffle.TransactionDetails
-  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+  ): Promise<{
+    0: BN;
+    1: string;
+    2: BN;
+    3: string;
+    4: string;
+    5: BN;
+    6: boolean;
+  }>;
 
   acceptedNFTs(
     arg0: string,
@@ -89,7 +89,29 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
   bids(
     arg0: number | BN | string,
     txDetails?: Truffle.TransactionDetails
-  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+  ): Promise<{
+    0: BN;
+    1: string;
+    2: BN;
+    3: string;
+    4: string;
+    5: BN;
+    6: boolean;
+  }>;
+
+  loans(
+    arg0: number | BN | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<{
+    0: BN;
+    1: string;
+    2: BN;
+    3: string;
+    4: string;
+    5: BN;
+    6: boolean;
+    7: string;
+  }>;
 
   nextBidId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
@@ -127,32 +149,74 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
   acceptBid: {
     (
       bidId: number | BN | string,
-      duration: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<Truffle.TransactionResponse<AllEvents>>;
     call(
       bidId: number | BN | string,
-      duration: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<void>;
     sendTransaction(
       bidId: number | BN | string,
-      duration: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
     estimateGas(
       bidId: number | BN | string,
-      duration: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  repayLoan: {
+    (
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  defaultLoan: {
+    (
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      bidId: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      bidId: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
 
   methods: {
-    acceptedBids(
+    acceptedLoans(
       arg0: string,
       arg1: number | BN | string,
       txDetails?: Truffle.TransactionDetails
-    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+    ): Promise<{
+      0: BN;
+      1: string;
+      2: BN;
+      3: string;
+      4: string;
+      5: BN;
+      6: boolean;
+    }>;
 
     acceptedNFTs(
       arg0: string,
@@ -167,7 +231,29 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
     bids(
       arg0: number | BN | string,
       txDetails?: Truffle.TransactionDetails
-    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+    ): Promise<{
+      0: BN;
+      1: string;
+      2: BN;
+      3: string;
+      4: string;
+      5: BN;
+      6: boolean;
+    }>;
+
+    loans(
+      arg0: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<{
+      0: BN;
+      1: string;
+      2: BN;
+      3: string;
+      4: string;
+      5: BN;
+      6: boolean;
+      7: string;
+    }>;
 
     nextBidId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
@@ -205,22 +291,56 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
     acceptBid: {
       (
         bidId: number | BN | string,
-        duration: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<Truffle.TransactionResponse<AllEvents>>;
       call(
         bidId: number | BN | string,
-        duration: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<void>;
       sendTransaction(
         bidId: number | BN | string,
-        duration: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<string>;
       estimateGas(
         bidId: number | BN | string,
-        duration: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
+
+    repayLoan: {
+      (
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<void>;
+      sendTransaction(
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
+
+    defaultLoan: {
+      (
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<void>;
+      sendTransaction(
+        bidId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        bidId: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };

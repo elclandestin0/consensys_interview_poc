@@ -76,7 +76,7 @@ contract NFTPlatform {
         address _nftContract,
         uint256 _tokenId
     ) public {
-        IERC721 nft = IERC721(_tokenAddress);
+        IERC721 nft = IERC721(_nftContract);
         require(
             nft.ownerOf(_tokenId) == msg.sender,
             "Must own the token to send!"
@@ -126,7 +126,7 @@ contract NFTPlatform {
 
         emit BidAccepted(bidId, msg.sender);
 
-        Loan memory loan = new Loan({
+        Loan memory loan = Loan({
             bidId: bid.bidId,
             tokenContract: bid.tokenContract,
             askAmount: bid.askAmount,
@@ -136,11 +136,14 @@ contract NFTPlatform {
             defaulted: false,
             lender: msg.sender
         });
+
+        loans[bid.bidId] = loan;
     }
 
     function repayLoan(uint32 bidId) public {
         Bid storage bid = bids[bidId];
         require(bid.accepted, "Can't repay bid if not accepted");
+        
         // can remove below require if you want to incentivize users to pay for other people's loans
         require(
             bid.from == msg.sender,
@@ -150,7 +153,7 @@ contract NFTPlatform {
 
         // can remove comment below and comment out `interest` variable for a more robust interest calc.
         // uint256 customInterest = calculateInterest(bid.askAmount, bid.dueDate - block.timestamp)
-        uint256 interest = 1000;
+        uint256 interest = 10000;
         uint256 totalPaymentRequired = bid.askAmount + interest;
 
         require(token.balanceOf(msg.sender) >= totalPaymentRequired);
@@ -166,6 +169,7 @@ contract NFTPlatform {
     }
 
     function defaultLoan(uint32 bidId) public {
+        // optional: add a require so it can only be executable by the lender when duration has passed
         Bid storage bid = bids[bidId];
         require(bid.accepted, "Bid must be accepted");
         // add more requires depending on how deep you want your protocol tog o

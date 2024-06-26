@@ -41,4 +41,8 @@ module.exports = {
   db: {
     enabled: false,
   },
+  solidityLog: {
+    displayPrefix: ' :',
+    preventConsoleMigration: true
+  }
 };

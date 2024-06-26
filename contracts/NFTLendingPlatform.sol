@@ -2,6 +2,9 @@
 pragma solidity ^0.8.2;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 
 contract NFTPlatform {
     // Structs
@@ -24,7 +27,7 @@ contract NFTPlatform {
     uint32 public nextBidId = 1;
 
     // Events
-    event CreateBid(
+    event BidCreated(
         address tokenContract,
         uint256 askAmount,
         address nftContract,
@@ -32,16 +35,16 @@ contract NFTPlatform {
         address from
     );
 
-    event AcceptBid(
+    event BidAccepted(
         uint32 bidId,
         address from,
         uint256 initialPremiumFee,
         uint32 duration
     );
 
-    event PayPrincipal(uint32 bidId, address tokenPaidIn, uint256 amountPaid);
+    event PrincipalPaid(uint32 bidId, address tokenPaidIn, uint256 amountPaid);
 
-    event DefaultLoan(uint32 bidId, address nftContract, uint256 tokenId);
+    event LoanDefaulted(uint32 bidId, address nftContract, uint256 tokenId);
 
     constructor(address acceptedToken) {
         acceptedTokens[acceptedToken] = true;
@@ -75,7 +78,7 @@ contract NFTPlatform {
             accepted: false
         });
         bids[nextBidId] = newBid;
-        emit CreateBid(
+        emit BidCreated(
             _tokenAddress,
             _amount,
             _nftContract,
@@ -84,6 +87,7 @@ contract NFTPlatform {
         );
         nextBidId++;
     }
+
     function acceptBid(uint32 bidId, uint256 duration) public onlyAcceptedTokens(bids[bidId].tokenContract) {
         Bid storage bid = bids[bidId];
         require(!bid.accepted, "Bid already accepted");
@@ -92,12 +96,12 @@ contract NFTPlatform {
         require(token.transferFrom(msg.sender, bid.from, bid.askAmount), "Token transfer failed");
 
         bid.accepted = true;
-        bid.dueDate = block.timestamp + duration;
+        // bid.dueDate = block.timestamp + duration;
 
         IERC721 nft = IERC721(bid.nftContract);
         require(nft.ownerOf(bid.tokenId) == address(this), "NFT is not staked in the contract");
 
-        emit BidAccepted(bidId, msg.sender, bid.dueDate);
+        // emit BidAccepted(bidId, msg.sender, bid.dueDate);
     }
 
 }

@@ -13,8 +13,8 @@ export interface NFTPlatformContract
   ): Promise<NFTPlatformInstance>;
 }
 
-export interface AcceptBid {
-  name: "AcceptBid";
+export interface BidAccepted {
+  name: "BidAccepted";
   args: {
     bidId: BN;
     from: string;
@@ -27,8 +27,8 @@ export interface AcceptBid {
   };
 }
 
-export interface CreateBid {
-  name: "CreateBid";
+export interface BidCreated {
+  name: "BidCreated";
   args: {
     tokenContract: string;
     askAmount: BN;
@@ -43,8 +43,8 @@ export interface CreateBid {
   };
 }
 
-export interface DefaultLoan {
-  name: "DefaultLoan";
+export interface LoanDefaulted {
+  name: "LoanDefaulted";
   args: {
     bidId: BN;
     nftContract: string;
@@ -55,8 +55,8 @@ export interface DefaultLoan {
   };
 }
 
-export interface PayPrincipal {
-  name: "PayPrincipal";
+export interface PrincipalPaid {
+  name: "PrincipalPaid";
   args: {
     bidId: BN;
     tokenPaidIn: string;
@@ -67,14 +67,19 @@ export interface PayPrincipal {
   };
 }
 
-type AllEvents = AcceptBid | CreateBid | DefaultLoan | PayPrincipal;
+type AllEvents = BidAccepted | BidCreated | LoanDefaulted | PrincipalPaid;
 
 export interface NFTPlatformInstance extends Truffle.ContractInstance {
   acceptedBids(
     arg0: string,
     arg1: number | BN | string,
     txDetails?: Truffle.TransactionDetails
-  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN }>;
+  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+
+  acceptedNFTs(
+    arg0: string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
 
   acceptedTokens(
     arg0: string,
@@ -84,7 +89,7 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
   bids(
     arg0: number | BN | string,
     txDetails?: Truffle.TransactionDetails
-  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN }>;
+  ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
 
   nextBidId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
@@ -119,12 +124,40 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  acceptBid: {
+    (
+      bidId: number | BN | string,
+      duration: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      bidId: number | BN | string,
+      duration: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      bidId: number | BN | string,
+      duration: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      bidId: number | BN | string,
+      duration: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   methods: {
     acceptedBids(
       arg0: string,
       arg1: number | BN | string,
       txDetails?: Truffle.TransactionDetails
-    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN }>;
+    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
+
+    acceptedNFTs(
+      arg0: string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<boolean>;
 
     acceptedTokens(
       arg0: string,
@@ -134,7 +167,7 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
     bids(
       arg0: number | BN | string,
       txDetails?: Truffle.TransactionDetails
-    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN }>;
+    ): Promise<{ 0: string; 1: BN; 2: string; 3: string; 4: BN; 5: boolean }>;
 
     nextBidId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
@@ -165,6 +198,29 @@ export interface NFTPlatformInstance extends Truffle.ContractInstance {
         _amount: number | BN | string,
         _nftContract: string,
         _tokenId: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
+
+    acceptBid: {
+      (
+        bidId: number | BN | string,
+        duration: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        bidId: number | BN | string,
+        duration: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<void>;
+      sendTransaction(
+        bidId: number | BN | string,
+        duration: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        bidId: number | BN | string,
+        duration: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };

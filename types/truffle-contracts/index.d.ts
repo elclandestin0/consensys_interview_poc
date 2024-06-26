@@ -2,17 +2,26 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import { IERC165Contract } from "./IERC165";
+import { IERC20Contract } from "./IERC20";
+import { IERC721Contract } from "./IERC721";
 import { MathContract } from "./Math";
 import { NFTPlatformContract } from "./NFTPlatform";
 
 declare global {
   namespace Truffle {
     interface Artifacts {
+      require(name: "IERC165"): IERC165Contract;
+      require(name: "IERC20"): IERC20Contract;
+      require(name: "IERC721"): IERC721Contract;
       require(name: "Math"): MathContract;
       require(name: "NFTPlatform"): NFTPlatformContract;
     }
   }
 }
 
+export { IERC165Contract, IERC165Instance } from "./IERC165";
+export { IERC20Contract, IERC20Instance } from "./IERC20";
+export { IERC721Contract, IERC721Instance } from "./IERC721";
 export { MathContract, MathInstance } from "./Math";
 export { NFTPlatformContract, NFTPlatformInstance } from "./NFTPlatform";

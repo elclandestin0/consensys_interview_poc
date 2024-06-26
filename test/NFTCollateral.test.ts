@@ -8,15 +8,17 @@ describe("NFTPlatform", function () {
   let collateralToken: CollateralToken;
   let cUSDC: CUSDC;
   let owner: Signer, addr1: Signer, addr2: Signer;
-  const initialSupply = ethers.parseEther("1000");
+  const initialSupply = ethers.toBigInt("10000000000");
 
   before(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
 
+    // deploy and mint usdc
     const cUSDCFactory = await ethers.getContractFactory("cUSDC");
     cUSDC = (await cUSDCFactory.deploy(initialSupply)) as CUSDC;
     await cUSDC.waitForDeployment();
 
+    // Deploy and mint 1 collateral token to the borrower
     const CollateralTokenFactory = await ethers.getContractFactory(
       "CollateralToken"
     );
@@ -26,6 +28,7 @@ describe("NFTPlatform", function () {
     await collateralToken.waitForDeployment();
     await collateralToken.mint(await addr1.getAddress());
 
+    // Instantiate and let borrower approve 1 collateral token to be owned by the contract
     const NFTPlatformFactory = await ethers.getContractFactory("NFTPlatform");
     nftPlatform = (await NFTPlatformFactory.deploy(
       await cUSDC.getAddress()
@@ -33,7 +36,10 @@ describe("NFTPlatform", function () {
     await nftPlatform.waitForDeployment();
     await collateralToken
       .connect(addr1)
-      .approve(await nftPlatform.getAddress(), await collateralToken.currentTokenId());
+      .approve(
+        await nftPlatform.getAddress(),
+        await collateralToken.currentTokenId()
+      );
   });
 
   it("should create a bid", async function () {
@@ -66,19 +72,17 @@ describe("NFTPlatform", function () {
     expect(bid.from).to.equal(await addr1.getAddress());
     expect(bid.accepted).to.equal(false);
   });
-
   it("should accept a bid", async function () {
-    // Transfer tokens to addr1 and approve the NFTPlatform contract
-    await cUSDC.transfer(await addr1.getAddress(), ethers.parseEther("20"));
+    const bidId = await nftPlatform.nextBidId();
+    const bid = await nftPlatform.bids(bidId);
+    await cUSDC.transfer(addr1, bid.askAmount);
     await cUSDC
       .connect(addr1)
-      .approve(await nftPlatform.getAddress(), ethers.parseEther("10"));
-
+      .approve(await nftPlatform.getAddress(), bid.askAmount);
     await expect(nftPlatform.connect(addr1).acceptBid(1))
       .to.emit(nftPlatform, "BidAccepted")
       .withArgs(1, await addr1.getAddress());
 
-    const bid = await nftPlatform.bids(1);
     expect(bid.accepted).to.equal(true);
   });
 });

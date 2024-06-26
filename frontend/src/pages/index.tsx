@@ -1,12 +1,12 @@
-import { Flex, Heading } from "@chakra-ui/react";
+import { Button, Flex, Grid, Heading, Text } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import MetaMaskConnect from "@/components/MetaMaskConnect";
 import { useSDK } from "@metamask/sdk-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const Home: React.FC = () => {
   const { connected } = useSDK();
-  
+
   useEffect(() => {
     console.log(connected);
   }, [connected]);
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
       justifyContent="center"
       direction="column"
       p={4}
-      style={{ backgroundColor: "purple" }}
+      style={{ backgroundColor: "#303261" }}
     >
       <img
         src="https://asset.brandfetch.io/idUXBRZHw0/idIDvhq9nr.jpeg"
@@ -37,15 +37,28 @@ const Home: React.FC = () => {
       </Heading>
       {!connected && <MetaMaskConnect />}
       {connected && (
-        <Heading
-          as="h1"
-          size="lg"
-          noOfLines={1}
-          mt={19}
-          color="#aaff00"
-        >
-          Connected
-        </Heading>
+        <Grid templateColumns="repeat(1, 1fr)" gap={10} mt={10}>
+          <Button
+            colorScheme={"pink"}
+            p={4}
+            onClick={() => {
+              console.log("C");
+            }}
+            style={{ width: "300px" }}
+          >
+            <Text>Create Bid</Text>
+          </Button>
+          <Button
+            variant="outline"
+            colorScheme={"pink"}
+            p={4}
+            onClick={() => {
+              console.log("B");
+            }}
+          >
+            <Text>Check Bids</Text>
+          </Button>
+        </Grid>
       )}
     </Flex>
   );

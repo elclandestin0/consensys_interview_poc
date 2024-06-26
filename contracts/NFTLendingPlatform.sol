@@ -52,13 +52,13 @@ contract NFTPlatform {
 
     // Modifiers
     modifier onlyAcceptedTokens(address tokenAddress) {
-        require(acceptedTokens[tokenAddress], "Not an accepted token address!");
+        require(acceptedTokens[tokenAddress], "Not an accepted token!");
         _;
     }
 
     // Modifiers
     modifier onlyAcceptedNFTs(address nftAddress) {
-        require(acceptedNFTs[nftAddress], "Not an accepted token address!");
+        require(acceptedNFTs[nftAddress], "Not an accepted NFT collection!");
         _;
     }
 

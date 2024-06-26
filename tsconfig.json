@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-      "target": "es2017",
-      "module": "commonjs",
+      "target": "ES2020",
+      "module": "CommonJS",
       "strict": true,
       "moduleResolution": "node",
       "noImplicitThis": true,
@@ -13,6 +13,6 @@
       "sourceMap": true,
       "typeRoots": ["./node_modules/@types", "./types"],
     },
-    "include": ["**/*.ts"],
+    "include": ["**/*.ts", "test/NFTPlatform.test.ts"],
     "exclude": ["node_modules", "example", "build"]
 }

@@ -27,6 +27,7 @@ contract NFTPlatform is IERC721Receiver {
         address nftContract;
         uint256 tokenId;
         bool defaulted;
+        bool repaid;
         address lender;
     }
 
@@ -38,7 +39,8 @@ contract NFTPlatform is IERC721Receiver {
     mapping(uint32 => Loan) public loans;
 
     // Bid id
-    uint32 public nextBidId = 1;
+    uint32 public currentBidId;
+    uint256 public interest = 1000;
 
     // Events
     event BidCreated(
@@ -85,7 +87,7 @@ contract NFTPlatform is IERC721Receiver {
         );
         nft.safeTransferFrom(msg.sender, address(this), _tokenId);
         Bid memory newBid = Bid({
-            bidId: nextBidId,
+            bidId: currentBidId,
             tokenContract: _tokenAddress,
             askAmount: _amount,
             nftContract: _nftContract,
@@ -93,7 +95,7 @@ contract NFTPlatform is IERC721Receiver {
             from: msg.sender,
             accepted: false
         });
-        bids[++nextBidId] = newBid;
+        bids[++currentBidId] = newBid;
         emit BidCreated(
             _tokenAddress,
             _amount,
@@ -134,13 +136,14 @@ contract NFTPlatform is IERC721Receiver {
             nftContract: bid.nftContract,
             tokenId: bid.tokenId,
             defaulted: false,
+            repaid: false,
             lender: msg.sender
         });
     }
 
     function repayLoan(uint32 bidId) public {
         Bid storage bid = bids[bidId];
-        require(bid.accepted, "Can't repay bid if not accepted");
+        require(bid.accepted, "Can't repay loan if not accepted");
         // can remove below require if you want to incentivize users to pay for other people's loans
         require(
             bid.from == msg.sender,
@@ -150,7 +153,6 @@ contract NFTPlatform is IERC721Receiver {
 
         // can remove comment below and comment out `interest` variable for a more robust interest calc.
         // uint256 customInterest = calculateInterest(bid.askAmount, bid.dueDate - block.timestamp)
-        uint256 interest = 1000;
         uint256 totalPaymentRequired = bid.askAmount + interest;
 
         require(token.balanceOf(msg.sender) >= totalPaymentRequired);
@@ -160,7 +162,9 @@ contract NFTPlatform is IERC721Receiver {
 
         IERC721 nft = IERC721(bid.nftContract);
         nft.transferFrom(address(this), msg.sender, bid.tokenId);
-
+        
+        Loan storage loan = loans[bidId];
+        loan.repaid = true;
         emit LoanRepaid(bidId, bid.tokenContract, bid.askAmount);
         (bidId, bid.tokenContract, totalPaymentRequired);
     }

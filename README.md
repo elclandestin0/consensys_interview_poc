@@ -7,7 +7,7 @@ Consensys Full-stack Enablement Interview PoC
 ### MetaMask Chrome Extension
 - Connect through Web3.js
 ### Metamask Snap (Nice to have)
-### Truffle
+### Hardhat
 - Set up contracts
 - Compile contracts
     - This includes the custom ERC721, 1155 and also the ERC20 contracts to borrow

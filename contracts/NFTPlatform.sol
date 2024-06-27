@@ -139,6 +139,7 @@ contract NFTPlatform is IERC721Receiver {
             repaid: false,
             lender: msg.sender
         });
+        loans[bidId] = loan;
     }
 
     function repayLoan(uint32 bidId) public {
@@ -155,18 +156,22 @@ contract NFTPlatform is IERC721Receiver {
         // uint256 customInterest = calculateInterest(bid.askAmount, bid.dueDate - block.timestamp)
         uint256 totalPaymentRequired = bid.askAmount + interest;
 
-        require(token.balanceOf(msg.sender) >= totalPaymentRequired);
         require(
-            token.transferFrom(msg.sender, address(this), totalPaymentRequired)
+            token.balanceOf(msg.sender) >= totalPaymentRequired,
+            "Sender doesn't have the required funds"
         );
+        require(
+            token.transferFrom(msg.sender, address(this), totalPaymentRequired),
+            "Token couldn't be transferred!"
+        );
+
 
         IERC721 nft = IERC721(bid.nftContract);
         nft.transferFrom(address(this), msg.sender, bid.tokenId);
-        
+
         Loan storage loan = loans[bidId];
         loan.repaid = true;
-        emit LoanRepaid(bidId, bid.tokenContract, bid.askAmount);
-        (bidId, bid.tokenContract, totalPaymentRequired);
+        emit LoanRepaid(bidId, bid.tokenContract, totalPaymentRequired);
     }
 
     function defaultLoan(uint32 bidId) public {

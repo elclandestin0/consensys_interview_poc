@@ -73,14 +73,14 @@ describe("NFTPlatform", function () {
     expect(bid.accepted).to.equal(false);
   });
   it("should accept a bid", async function () {
-    const bidId = 1;
+    const bidId = await nftPlatform.currentBidId();
     const bid = await nftPlatform.bids(bidId);
     await cUSDC.transfer(addr2, bid.askAmount);
     await cUSDC
       .connect(addr2)
       .approve(await nftPlatform.getAddress(), bid.askAmount);
-    
-      await expect(nftPlatform.connect(addr2).acceptBid(bidId))
+
+    await expect(nftPlatform.connect(addr2).acceptBid(bidId))
       .to.emit(nftPlatform, "BidAccepted")
       .withArgs(bidId, await addr2.getAddress());
 
@@ -89,21 +89,19 @@ describe("NFTPlatform", function () {
   });
 
   it("should repay a loan", async function () {
-    const bidId = 1;
+    const bidId = await nftPlatform.currentBidId();
     const loan = await nftPlatform.loans(bidId);
-    const amountOwed = loan.askAmount + await nftPlatform.interest();
-    await cUSDC.transfer(addr1, loan.askAmount);
+    const amountOwed = loan.askAmount + (await nftPlatform.interest());
+    await cUSDC.transfer(addr1, await nftPlatform.interest());
     await cUSDC
       .connect(addr1)
-      .approve(
-        await addr1.getAddress(),
-        amountOwed
-      );
+      .approve(await nftPlatform.getAddress(), amountOwed);
 
     await expect(nftPlatform.connect(addr1).repayLoan(bidId))
       .to.emit(nftPlatform, "LoanRepaid")
       .withArgs(bidId, await cUSDC.getAddress(), amountOwed);
 
-    expect(loan.repaid).to.equal(true);
+    const updatedLoan = await nftPlatform.loans(bidId);
+    expect(updatedLoan.repaid).to.equal(true);
   });
 });

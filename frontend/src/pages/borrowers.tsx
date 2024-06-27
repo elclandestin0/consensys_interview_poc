@@ -1,14 +1,18 @@
-import { Flex, Heading } from "@chakra-ui/react";
+import { Button, Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import { useSDK } from "@metamask/sdk-react";
 import { useEffect } from "react";
+import addresses from "@/utils/addresses";
+import usePlatformContract from "@/hooks/contracts/usePlatformContract";
+import { ethers } from "ethers";
+import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
 
 const Borrowers: React.FC = () => {
   const { connected } = useSDK();
-
-  useEffect(() => {
-    console.log(connected);
-  }, [connected]);
+  const { createBid } = usePlatformContract();
+  const { approve } = useCollateralTokenContract();
+  const { cusdcAddress, collateralTokenAddress } =
+    addresses.networks.linea_sepolia;
 
   return (
     <Flex
@@ -29,6 +33,21 @@ const Borrowers: React.FC = () => {
       >
         Borrowers
       </Heading>
+      <Button
+        onClick={async () => {
+          approve(ethers.parseUnits("1")).then(() => {
+            createBid(
+              cusdcAddress,
+              ethers.parseUnits("1000000"),
+              collateralTokenAddress,
+              ethers.parseUnits("1")
+            );
+          });
+        }}
+      >
+        {" "}
+        Create Bid{" "}
+      </Button>
     </Flex>
   );
 };

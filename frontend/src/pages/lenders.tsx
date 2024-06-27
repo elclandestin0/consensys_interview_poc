@@ -6,9 +6,6 @@ import { useEffect } from "react";
 const Lenders: React.FC = () => {
   const { connected } = useSDK();
 
-  useEffect(() => {
-    console.log(connected);
-  }, [connected]);
 
   return (
     <Flex

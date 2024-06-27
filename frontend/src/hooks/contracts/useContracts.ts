@@ -1,21 +1,25 @@
 import {useState, useEffect} from 'react';
-import {ethers, Contract} from 'ethers';
 import CollateralToken from '../../utils/artifacts/contracts/CollateralToken.sol/CollateralToken.json';
 import cUSDC from  '../../utils/artifacts/contracts/cUSDC.sol/cUSDC.json';
 import NFTPlatform from  '../../utils/artifacts/contracts/NFTPlatform.sol/NFTPlatform.json';
 import addresses from '../../utils/addresses';
+import { ethers } from 'ethers';
 
 export function useContracts() {
     const {cusdcAddress, nftPlatformAddress, collateralTokenAddress} = addresses.networks.linea_sepolia;
-    const [nftPlatformContract, setNftPlatformContract] = useState<Contract | null>(null);
-    const [cusdcContract, setCusdcContract] = useState<Contract | null>(null);
-    const [collateralTokenContract, setCollateralTokenContract] = useState<Contract | null>(null);
+    const [nftPlatformContract, setNftPlatformContract] = useState<ethers.Contract | null>(null);
+    const [cusdcContract, setCusdcContract] = useState<ethers.Contract | null>(null);
+    const [collateralTokenContract, setCollateralTokenContract] = useState<ethers.Contract | null>(null);
     useEffect(() => {
         const initializeContracts = async () => {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    const provider = new ethers.JsonRpcProvider(window.ethereum);
+                    console.log("hello")
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    console.log("here?")
+                    await provider.send("eth_requestAccounts", []); // Request account access if needed
                     const signer = await provider.getSigner();
+                    
                     const nftPlatform = new ethers.Contract(
                         nftPlatformAddress,
                         NFTPlatform.abi,
@@ -33,7 +37,6 @@ export function useContracts() {
                         CollateralToken.abi,
                         signer
                     )
-                    
                     setCusdcContract(cusdc);
                     setNftPlatformContract(nftPlatform);
                     setCollateralTokenContract(collateralToken);

@@ -5,113 +5,93 @@ import { ethers } from "ethers";
 import addresses from "../../utils/addresses";
 import { useSDK } from "@metamask/sdk-react";
 
-const usePolicyContract = () => {
+interface Bid {
+  bidId: number;
+  tokenContract: string;
+  askAmount: string;
+  from: string;
+  nftContract: string;
+  tokenId: number;
+  accepted: boolean;
+}
+
+const usePlatformContract = () => {
   const { nftPlatformContract, cusdcContract } = useContracts();
   const { account } = useSDK(); // Get the current account from MetaMask
-  const [bids, setBids] = useState([]);
+  const [bids, setBids] = useState<Bid[]>([]);
   // const [ownedPolicies, setOwnedPolicies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // const checkPolicyOwnership = useCallback(async (policyId: number, accountAddress: String) => {
-  //     if (!policyMakerContract || !policyId || !accountAddress) {
-  //         return false;
-  //     }
-  //     try {
-  //         return await policyMakerContract.policyOwners(policyId, accountAddress);
-  //     } catch (err) {
-  //         console.error('Error checking policy ownership:', err);
-  //         return false;
-  //     }
-  // }, [policyMakerContract]);
+  useEffect(() => {
+    console.log(nftPlatformContract);
+  }, [nftPlatformContract]);
 
-  const fetchBids = async (): Promise<any[]> => {
+  const fetchBids = async () => {
     if (!nftPlatformContract) {
       console.error("Contract not initialized.");
-      return [];
+      return;
     }
     try {
-      const allBids: any = [];
       const nextIdBigNumber = await nftPlatformContract.currentBidId();
       if (nextIdBigNumber != null) {
-        for (let i = 1; i < nextIdBigNumber; i++) {
-          const bid = await nftPlatformContract.bids(i.toString());
-          console.log(bid);
-          // const formattedPolicy = {
-          //     id: i,
-          //     coverageAmount: policy.coverageAmount.toString(),
-          //     initialPremiumFee: policy.initialPremiumFee.toString(),
-          //     initialCoveragePercentage: policy.initialCoveragePercentage.toString(),
-          //     premiumRate: policy.premiumRate.toString(),
-          //     duration: Number(policy.duration),
-          //     penaltyRate: Number(policy.penaltyRate),
-          //     monthsGracePeriod: Number(policy.monthsGracePeriod),
-          //     investmentFundPercentage: Number(policy.investmentFundPercentage),
-          //     coverageFundPercentage: Number(policy.coverageFundPercentage),
-          //     creator: policy.creator
-          // };
-
-          allBids.push(bid); // Update loading state
+        const allBids = [];
+        const nextId = nextIdBigNumber; // Convert BigNumber to a number
+        for (let i = 1; i < nextId; i++) {
+          const bid = await nftPlatformContract.bids(i);
+          allBids.push(bid);
         }
+        console.log(allBids);
         setBids(allBids);
         setIsLoading(false);
-
-        return allBids;
       } else {
-        console.error("nextPolicyId did not return a BigNumber.");
-        return [];
+        console.error("currentBidId did not return a valid value.");
       }
     } catch (error) {
-      console.error("Error fetching all policies:", error);
-      return [];
+      console.error("Error fetching all bids:", error);
     }
   };
 
-  // const payPremium = useCallback(async (policyId: any, premiumAmount: any) => {
-  //     if (!policyMakerContract || !policyId || !premiumAmount) {
-  //         console.error("Contract not initialized or invalid parameters.");
-  //         return;
-  //     }
+  const createBid = useCallback(
+    async (
+      tokenAddress: string,
+      amount: any,
+      nftContract: string,
+      tokenId: any
+    ) => {
+      if (
+        !nftPlatformContract ||
+        !tokenId ||
+        !amount ||
+        !tokenAddress ||
+        !nftContract
+      ) {
+        console.error("Contract not initialized or invalid parameters.");
+        return;
+      }
 
-  //     try {
-  //         // Assuming you have ethers.js or a similar library
-  //         const transaction = await policyMakerContract.payPremium(policyId, premiumAmount, {
-  //             from: account
-  //         });
-  //         await transaction.wait(); // Wait for the transaction to be mined
-  //         console.log('Premium paid successfully');
-  //     } catch (err) {
-  //         console.error('Error paying initial premium:', err);
-  //     }
-  // }, [policyMakerContract, account]);
-
-  // const fetchPolicy = useCallback(async (policyId: String) => {
-  //     if (!policyMakerContract || !policyId) {
-  //         return null;
-  //     }
-  //     try {
-  //         const policy = await policyMakerContract.policies(policyId);
-  //         return {
-  //             id: policyId,
-  //             creator: policy.creator,
-  //             coverageAmount: policy.coverageAmount.toString(),
-  //             initialPremiumFee: policy.initialPremiumFee.toString(),
-  //             initialCoveragePercentage: policy.initialCoveragePercentage.toString(),
-  //             premiumRate: policy.premiumRate.toString(),
-  //             duration: Number(policy.duration),
-  //             penaltyRate: Number(policy.penaltyRate),
-  //             monthsGracePeriod: Number(policy.monthsGracePeriod),
-  //             coverageFundPercentage: Number(policy.coverageFundPercentage),
-  //             investmentFundPercentage: Number(policy.investmentFundPercentage)
-  //         };
-
-  //     } catch (err) {
-  //         console.error('Error checking for policy: ', err);
-  //         return false;
-  //     }
-  // }, [policyMakerContract]);
+      try {
+        // Assuming you have ethers.js or a similar library
+        const transaction = await nftPlatformContract.createBid(
+          tokenAddress,
+          amount,
+          nftContract,
+          tokenId,
+          {
+            from: account,
+          }
+        );
+        await transaction.wait(); // Wait for the transaction to be mined
+        console.log("Bid created successfully");
+      } catch (err) {
+        console.error("Error creating bid:", err);
+      }
+    },
+    [nftPlatformContract, account]
+  );
 
   useEffect(() => {
+    console.log("hello");
     if (nftPlatformContract) {
       setIsLoading(true); // Set loading state before fetching
       fetchBids().catch((error) => {
@@ -121,8 +101,8 @@ const usePolicyContract = () => {
       });
     }
   }, []);
-  
-  return { fetchBids };
+
+  return { fetchBids, createBid };
 };
 
-export default usePolicyContract;
+export default usePlatformContract;

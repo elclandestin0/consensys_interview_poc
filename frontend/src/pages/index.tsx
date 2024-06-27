@@ -4,14 +4,19 @@ import MetaMaskConnect from "@/components/MetaMaskConnect";
 import { useSDK } from "@metamask/sdk-react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import usePlatformContract from "@/hooks/contracts/usePlatformContract";
 
 const Home: React.FC = () => {
   const { connected } = useSDK();
   const router = useRouter();
+  const {fetchBids} = usePlatformContract();
 
   useEffect(() => {
-    console.log(connected);
-  }, [connected]);
+    const memo =  async () => {
+      await fetchBids();
+    }
+    memo();
+  }, []); 
 
   return (
     <Flex

@@ -175,7 +175,7 @@ contract NFTPlatform is IERC721Receiver {
 
     function defaultLoan(uint32 bidId) public {
         Loan storage loan = loans[bidId];
-        
+
         // add more requires depending on how deep you want your protocol tog o
         // for example, maybe the loan can only be defaulted if the duration has passed
         require(!loan.defaulted, "Loan is already defaulted");

@@ -36,7 +36,7 @@ const usePlatformContract = () => {
       const nextIdBigNumber = await nftPlatformContract.currentBidId();
       if (nextIdBigNumber != null) {
         const allBids = [];
-        const nextId = nextIdBigNumber; // Convert BigNumber to a number
+        const nextId = ethers.parseUnits(nextIdBigNumber); // Convert BigNumber to a number
         for (let i = 1; i < nextId; i++) {
           const bid = await nftPlatformContract.bids(i);
           allBids.push(bid);
@@ -71,7 +71,6 @@ const usePlatformContract = () => {
       }
 
       try {
-        // Assuming you have ethers.js or a similar library
         const transaction = await nftPlatformContract.createBid(
           tokenAddress,
           amount,
@@ -81,7 +80,7 @@ const usePlatformContract = () => {
             from: account,
           }
         );
-        await transaction.wait(); // Wait for the transaction to be mined
+        await transaction.wait();
         console.log("Bid created successfully");
       } catch (err) {
         console.error("Error creating bid:", err);
@@ -91,18 +90,17 @@ const usePlatformContract = () => {
   );
 
   useEffect(() => {
-    console.log("hello");
     if (nftPlatformContract) {
       setIsLoading(true); // Set loading state before fetching
       fetchBids().catch((error) => {
-        console.error("Error fetching policies in useEffect:", error);
+        console.error("Error fetching bids in useEffect:", error);
         setError(error); // Set error state if an error occurs
         setIsLoading(false); // Update loading state
       });
     }
   }, []);
 
-  return { fetchBids, createBid };
+  return { fetchBids, createBid, bids };
 };
 
 export default usePlatformContract;

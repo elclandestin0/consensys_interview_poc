@@ -4,13 +4,14 @@ import { useSDK } from "@metamask/sdk-react";
 import { useEffect } from "react";
 import addresses from "@/utils/addresses";
 import usePlatformContract from "@/hooks/contracts/usePlatformContract";
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
+import { useContracts } from "@/hooks/contracts/useContracts";
 
 const Borrowers: React.FC = () => {
   const { connected } = useSDK();
   const { createBid } = usePlatformContract();
-  const { approve } = useCollateralTokenContract();
+  const { approve, getCurrentTokenId } = useCollateralTokenContract();
   const { cusdcAddress, collateralTokenAddress } =
     addresses.networks.linea_sepolia;
 
@@ -35,18 +36,21 @@ const Borrowers: React.FC = () => {
       </Heading>
       <Button
         onClick={async () => {
-          approve(ethers.parseUnits("1")).then(() => {
-            createBid(
+          try {
+            const tokenId = await getCurrentTokenId();
+            await approve();
+            await createBid(
               cusdcAddress,
-              ethers.parseUnits("1000000"),
+              ethers.parseUnits("1000000", 6),
               collateralTokenAddress,
-              ethers.parseUnits("1")
+              tokenId
             );
-          });
+          } catch (error) {
+            console.error("Error in approve or createBid:", error);
+          }
         }}
       >
-        {" "}
-        Create Bid{" "}
+        Create Bid
       </Button>
     </Flex>
   );

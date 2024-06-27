@@ -10,15 +10,26 @@ const useCollateralTokenContract = () => {
   const [error, setError] = useState<unknown>();
   const { account } = useSDK();
 
+  const getCurrentTokenId = async () => {
+    if (!collateralTokenContract) {
+        console.error("Contract not initialized!");
+        return;
+    }
+    try {
+        return await collateralTokenContract.currentTokenId();
+    } catch (err) {
+        console.error("Error retrieving current tokenId ", err);
+    }
+  }
+
   const approve = useCallback(
-    async (tokenId: any) => {
-      if (!collateralTokenContract || !account || tokenId) {
+    async () => {
+      if (!collateralTokenContract || !account) {
         console.error("Contract not initialized or invalid parameters.");
         return;
       }
 
       try {
-        // Assuming you have ethers.js or a similar library
         const transaction = await collateralTokenContract.approve(
           nftPlatformAddress,
           await collateralTokenContract.currentTokenId(),
@@ -26,13 +37,18 @@ const useCollateralTokenContract = () => {
             from: account,
           }
         );
-        await transaction.wait(); // Wait for the transaction to be mined
-        console.log("Approved token ", tokenId, " from account ", account);
+        await transaction.wait();
+        console.log(
+          "Approved token ",
+        //   tokenId.toString(),
+          " from account ",
+          account
+        );
       } catch (err) {
-        console.error("Error creating bid:", err);
+        console.error("Error approving token:", err);
       }
     },
-    [collateralTokenContract, account]
+    [collateralTokenContract, account, nftPlatformAddress]
   );
 
   useEffect(() => {
@@ -41,7 +57,7 @@ const useCollateralTokenContract = () => {
     }
   }, [collateralTokenContract]);
 
-  return { approve, isLoading, error };
+  return { approve, getCurrentTokenId, isLoading, error };
 };
 
 export default useCollateralTokenContract;

@@ -13,7 +13,7 @@ contract CollateralToken is ERC721, Ownable {
         address initialOwner
     ) ERC721("ConsensysCollateralToken", "CSYS") Ownable(initialOwner) {}
 
-    function mint(address to) public onlyOwner {
+    function mint(address to) public {
         uint256 tokenId = ++currentTokenId;
         _safeMint(to, tokenId);
     }

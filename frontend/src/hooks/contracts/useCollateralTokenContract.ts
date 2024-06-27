@@ -6,58 +6,70 @@ import { useSDK } from "@metamask/sdk-react";
 const useCollateralTokenContract = () => {
   const { nftPlatformAddress } = addresses.networks.linea_sepolia;
   const { collateralTokenContract } = useContracts();
-  const [isLoading, setIsAwethLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
   const { account } = useSDK();
 
   const getCurrentTokenId = async () => {
     if (!collateralTokenContract) {
-        console.error("Contract not initialized!");
-        return;
+      console.error("Contract not initialized!");
+      return;
     }
     try {
-        return await collateralTokenContract.currentTokenId();
+      return await collateralTokenContract.currentTokenId();
     } catch (err) {
-        console.error("Error retrieving current tokenId ", err);
+      console.error("Error retrieving current tokenId ", err);
     }
-  }
+  };
 
-  const approve = useCallback(
-    async () => {
-      if (!collateralTokenContract || !account) {
-        console.error("Contract not initialized or invalid parameters.");
-        return;
-      }
+  const approve = useCallback(async () => {
+    if (!collateralTokenContract || !account) {
+      console.error("Contract not initialized or invalid parameters.");
+      return;
+    }
 
-      try {
-        const transaction = await collateralTokenContract.approve(
-          nftPlatformAddress,
-          await collateralTokenContract.currentTokenId(),
-          {
-            from: account,
-          }
-        );
-        await transaction.wait();
-        console.log(
-          "Approved token ",
+    try {
+      const transaction = await collateralTokenContract.approve(
+        nftPlatformAddress,
+        await collateralTokenContract.currentTokenId(),
+        {
+          from: account,
+        }
+      );
+      await transaction.wait();
+      console.log(
+        "Approved token ",
         //   tokenId.toString(),
-          " from account ",
-          account
-        );
-      } catch (err) {
-        console.error("Error approving token:", err);
-      }
-    },
-    [collateralTokenContract, account, nftPlatformAddress]
-  );
+        " from account ",
+        account
+      );
+    } catch (err) {
+      console.error("Error approving token:", err);
+    }
+  }, [collateralTokenContract, account, nftPlatformAddress]);
+
+  const mint = useCallback(async () => {
+    if (!collateralTokenContract || !account) {
+      console.error("Contract not initialized or invalid parameters.");
+      return;
+    }
+
+    try {
+      const transaction = await collateralTokenContract.mint(account);
+      await transaction.wait();
+      console.log("Minted NFT ");
+    } catch (err) {
+      console.error("Error approving token:", err);
+    }
+  }, [collateralTokenContract, account]);
 
   useEffect(() => {
     if (collateralTokenContract) {
-      setIsAwethLoading(false); // Set loading state before fetching
+      setIsLoading(false); // Set loading state before fetching
     }
   }, [collateralTokenContract]);
 
-  return { approve, getCurrentTokenId, isLoading, error };
+  return { approve, getCurrentTokenId, mint, isLoading, error };
 };
 
 export default useCollateralTokenContract;

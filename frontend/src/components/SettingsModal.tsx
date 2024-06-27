@@ -1,3 +1,4 @@
+import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
 import {
   Button,
   Text,
@@ -14,29 +15,17 @@ import { useState } from "react";
 
 const SettingsModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { mint } = useCollateralTokenContract();
   const [loading, setLoading] = useState(false);
   const handleMintCollateralToken = async () => {
     setLoading(true);
     try {
       // Implement minting collateral token logic here
       // For example, interact with the smart contract to mint the token
+      mint();
       console.log("Minting collateral token...");
     } catch (error) {
       console.error("Error minting collateral token:", error);
-    } finally {
-      setLoading(false);
-      onClose();
-    }
-  };
-
-  const handleMintCUSDC = async () => {
-    setLoading(true);
-    try {
-      // Implement minting cUSDC logic here
-      // For example, interact with the smart contract to mint the token
-      console.log("Minting 10000 cUSDC...");
-    } catch (error) {
-      console.error("Error minting cUSDC:", error);
     } finally {
       setLoading(false);
       onClose();
@@ -72,14 +61,6 @@ const SettingsModal = () => {
               width="100%"
             >
               Mint from Collateral Token
-            </Button>
-            <Button
-              colorScheme="teal"
-              isLoading={loading}
-              onClick={handleMintCUSDC}
-              width="100%"
-            >
-              Mint 10000 cUSDC
             </Button>
           </ModalBody>
           <ModalFooter>

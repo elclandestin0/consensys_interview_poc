@@ -26,6 +26,8 @@ describe("NFTPlatform", function () {
       await owner.getAddress()
     )) as CollateralToken;
     await collateralToken.waitForDeployment();
+
+    // Mint a token for the borrower
     await collateralToken.mint(await addr1.getAddress());
 
     // Instantiate and let borrower approve 1 collateral token to be owned by the contract
@@ -103,5 +105,57 @@ describe("NFTPlatform", function () {
 
     const updatedLoan = await nftPlatform.loans(bidId);
     expect(updatedLoan.repaid).to.equal(true);
+  });
+  it("should default a loan", async function () {
+    // Create bid
+    const amount = ethers.toBigInt("1000");
+    await collateralToken.mint(await addr1.getAddress());
+    const tokenId = await collateralToken.currentTokenId();
+
+    await collateralToken
+      .connect(addr1)
+      .approve(await nftPlatform.getAddress(), tokenId);
+
+    await expect(
+      nftPlatform
+        .connect(addr1)
+        .createBid(
+          await cUSDC.getAddress(),
+          amount,
+          await collateralToken.getAddress(),
+          tokenId
+        )
+    )
+      .to.emit(nftPlatform, "BidCreated")
+      .withArgs(
+        await cUSDC.getAddress(),
+        amount,
+        await collateralToken.getAddress(),
+        tokenId,
+        await addr1.getAddress()
+      );
+
+    // Accept bid
+    const bidId = await nftPlatform.currentBidId();
+    const bid = await nftPlatform.bids(bidId);
+    await cUSDC.transfer(addr2, bid.askAmount);
+    await cUSDC
+      .connect(addr2)
+      .approve(await nftPlatform.getAddress(), bid.askAmount);
+
+    await expect(nftPlatform.connect(addr2).acceptBid(bidId))
+      .to.emit(nftPlatform, "BidAccepted")
+      .withArgs(bidId, await addr2.getAddress());
+
+    const updatedBid = await nftPlatform.bids(bidId);
+    expect(updatedBid.accepted).to.equal(true);
+
+    const loan = await nftPlatform.loans(bidId);
+    console.log(loan.bidId);
+
+    // default loan
+    await expect(nftPlatform.connect(addr2).defaultLoan(bidId))
+      .to.emit(nftPlatform, "LoanDefaulted")
+      .withArgs(bidId);
   });
 });

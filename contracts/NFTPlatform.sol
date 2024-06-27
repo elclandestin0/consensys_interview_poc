@@ -87,7 +87,7 @@ contract NFTPlatform is IERC721Receiver {
         );
         nft.safeTransferFrom(msg.sender, address(this), _tokenId);
         Bid memory newBid = Bid({
-            bidId: currentBidId,
+            bidId: ++currentBidId,
             tokenContract: _tokenAddress,
             askAmount: _amount,
             nftContract: _nftContract,
@@ -95,7 +95,7 @@ contract NFTPlatform is IERC721Receiver {
             from: msg.sender,
             accepted: false
         });
-        bids[++currentBidId] = newBid;
+        bids[currentBidId] = newBid;
         emit BidCreated(
             _tokenAddress,
             _amount,
@@ -165,7 +165,6 @@ contract NFTPlatform is IERC721Receiver {
             "Token couldn't be transferred!"
         );
 
-
         IERC721 nft = IERC721(bid.nftContract);
         nft.transferFrom(address(this), msg.sender, bid.tokenId);
 
@@ -175,15 +174,19 @@ contract NFTPlatform is IERC721Receiver {
     }
 
     function defaultLoan(uint32 bidId) public {
-        Bid storage bid = bids[bidId];
-        require(bid.accepted, "Bid must be accepted");
+        Loan storage loan = loans[bidId];
+        console.log(bidId);
         // add more requires depending on how deep you want your protocol tog o
+        // for example, maybe the loan can only be defaulted if the duration has passed
+        require(!loan.defaulted, "Loan is already defaulted");
+        require(loan.lender == msg.sender, "Lender not the msg.sender!");
 
-        IERC721 nft = IERC721(bid.nftContract);
-        require(nft.ownerOf(bid.tokenId) == address(this), "NFT not staked!");
-        nft.safeTransferFrom(address(this), msg.sender, bid.tokenId);
+        IERC721 nft = IERC721(loan.nftContract);
+        require(nft.ownerOf(loan.tokenId) == address(this), "NFT not staked!");
 
-        emit LoanDefaulted(bid.bidId);
+        nft.safeTransferFrom(address(this), msg.sender, loan.tokenId);
+
+        emit LoanDefaulted(loan.bidId);
     }
 
     function onERC721Received(

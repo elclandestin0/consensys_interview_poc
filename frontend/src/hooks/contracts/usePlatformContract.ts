@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useContracts } from "./useContracts"; // Import your useContracts hook
-
 import { ethers } from "ethers";
 import addresses from "../../utils/addresses";
 import { useSDK } from "@metamask/sdk-react";
-
-interface Bid {
+export interface Bid {
   bidId: number;
   tokenContract: string;
   askAmount: string;
@@ -13,6 +11,10 @@ interface Bid {
   nftContract: string;
   tokenId: number;
   accepted: boolean;
+  lender: string;
+  borrower: string;
+  repaid: boolean;
+  defaulted: boolean;
 }
 
 const usePlatformContract = () => {
@@ -23,21 +25,19 @@ const usePlatformContract = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    console.log(nftPlatformContract);
-  }, [nftPlatformContract]);
-
   const fetchBids = async () => {
     if (!nftPlatformContract) {
       console.error("Contract not initialized.");
       return;
     }
     try {
-      const nextIdBigNumber = Number((await nftPlatformContract.currentBidId()).toString());
+      const nextIdBigNumber = Number(
+        (await nftPlatformContract.currentBidId()).toString()
+      );
       if (nextIdBigNumber != null) {
         const allBids = [];
         for (let i = 1; i <= nextIdBigNumber; i++) {
-          const bid: Bid = await nftPlatformContract.bids(i.toString());
+          const bid: any = await nftPlatformContract.bids(i.toString());
           allBids.push(bid);
         }
         console.log(allBids);
@@ -97,7 +97,7 @@ const usePlatformContract = () => {
         setIsLoading(false); // Update loading state
       });
     }
-  }, []);
+  }, [nftPlatformContract]);
 
   return { fetchBids, createBid, bids };
 };

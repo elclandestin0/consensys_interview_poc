@@ -29,7 +29,8 @@ contract NFTPlatform is IERC721Receiver {
     mapping(address => mapping(uint32 => Bid)) public lenderAcceptedLoans;
     mapping(address => bool) public acceptedTokens;
     mapping(address => bool) public acceptedNFTs;
-    // Bid id
+
+    // Bid ID
     uint32 public currentBidId;
     uint256 public interest = 1000;
 

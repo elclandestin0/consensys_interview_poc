@@ -2,11 +2,17 @@ import { Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import { useSDK } from "@metamask/sdk-react";
 import ManageBidModal from "@/components/ManageBidsModal";
+import BidsTable from "@/components/BidsTable";
+import { useEffect, useState } from "react";
+import usePlatformContract from "@/hooks/contracts/usePlatformContract";
 
 const Borrowers: React.FC = () => {
   // can use later to show moodal when disconnected
   const { connected } = useSDK();
+  const { bids } = usePlatformContract();
 
+  useEffect(()=>{}, [bids])
+ 
   return (
     <Flex
       className={styles.main}
@@ -27,6 +33,7 @@ const Borrowers: React.FC = () => {
         Borrowers
       </Heading>
       <ManageBidModal />
+      <BidsTable bids={bids} />
     </Flex>
   );
 };

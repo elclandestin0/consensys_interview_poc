@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   const [owner, addr1] = await ethers.getSigners();
+  console.log("got signers");
   // Deploy CollateralToken
   const CollateralTokenFactory = await ethers.getContractFactory(
     "CollateralToken"

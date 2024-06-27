@@ -151,11 +151,14 @@ describe("NFTPlatform", function () {
     expect(updatedBid.accepted).to.equal(true);
 
     const loan = await nftPlatform.loans(bidId);
-    console.log(loan.bidId);
-
+    
     // default loan
     await expect(nftPlatform.connect(addr2).defaultLoan(bidId))
       .to.emit(nftPlatform, "LoanDefaulted")
       .withArgs(bidId);
+
+
+    // ensure that the borrower now owns the tokens by addr1
+    expect(await collateralToken.ownerOf(loan.tokenId)).to.equal(await addr2.getAddress());
   });
 });

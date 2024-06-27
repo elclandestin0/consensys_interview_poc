@@ -3,9 +3,11 @@ import styles from "@/styles/Home.module.css";
 import MetaMaskConnect from "@/components/MetaMaskConnect";
 import { useSDK } from "@metamask/sdk-react";
 import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 const Home: React.FC = () => {
   const { connected } = useSDK();
+  const router = useRouter();
 
   useEffect(() => {
     console.log(connected);
@@ -37,26 +39,26 @@ const Home: React.FC = () => {
       </Heading>
       {!connected && <MetaMaskConnect />}
       {connected && (
-        <Grid templateColumns="repeat(1, 1fr)" gap={10} mt={10}>
+        <Grid templateColumns="repeat(1, 1fr)" gap={6} mt={10}>
           <Button
             colorScheme={"pink"}
             p={4}
             onClick={() => {
-              console.log("C");
+              router.push('/borrowers');
             }}
             style={{ width: "300px" }}
           >
-            <Text>Create Bid</Text>
+            <Text>Borrowers</Text>
           </Button>
           <Button
             variant="outline"
             colorScheme={"pink"}
             p={4}
             onClick={() => {
-              console.log("B");
+              router.push('/lenders');
             }}
           >
-            <Text>Check Bids</Text>
+            <Text>Lenders</Text>
           </Button>
         </Grid>
       )}

@@ -1,22 +1,25 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const [owner] = await ethers.getSigners();
+  // Deploy CollateralToken
+  const CollateralTokenFactory = await ethers.getContractFactory("CollateralToken");
+  const collateralToken = await CollateralTokenFactory.deploy(await owner.getAddress());
+  await collateralToken.waitForDeployment();
+  console.log(`CollateralToken deployed to: ${await collateralToken.getAddress()}`);
 
-  const lockedAmount = ethers.parseEther("0.001");
+  // Deploy cUSDC
+  const cUSDCFactory = await ethers.getContractFactory("cUSDC");
+  const initialSupply = ethers.toBigInt("10000000000");
+  const cUSDC = await cUSDCFactory.deploy(initialSupply);
+  await cUSDC.waitForDeployment();
+  console.log(`cUSDC deployed to: ${await cUSDC.getAddress()}`);
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
-
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  // Deploy NFTPlatform
+  const NFTPlatformFactory = await ethers.getContractFactory("NFTPlatform");
+  const nftPlatform = await NFTPlatformFactory.deploy(await cUSDC.getAddress());
+  await nftPlatform.waitForDeployment();
+  console.log(`NFTPlatform deployed to: ${await nftPlatform.getAddress()}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

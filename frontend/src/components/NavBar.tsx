@@ -31,6 +31,7 @@ const NavBar = () => {
           <Text
             p="4"
             fontSize="16px"
+            _hover={{ textDecoration: "none", bg: "blue.800", borderRadius: "10px" }}
           >
             Borrowers
           </Text>
@@ -39,7 +40,7 @@ const NavBar = () => {
           <Text
             p="4"
             fontSize="16px"
-            _hover={{ textDecoration: "none", bg: "blue.700" }}
+            _hover={{ textDecoration: "none", bg: "blue.800", borderRadius: "10px" }}
           >
             Lenders
           </Text>

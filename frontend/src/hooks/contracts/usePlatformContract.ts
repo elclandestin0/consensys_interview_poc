@@ -33,12 +33,11 @@ const usePlatformContract = () => {
       return;
     }
     try {
-      const nextIdBigNumber = await nftPlatformContract.currentBidId();
+      const nextIdBigNumber = Number((await nftPlatformContract.currentBidId()).toString());
       if (nextIdBigNumber != null) {
         const allBids = [];
-        const nextId = ethers.parseUnits(nextIdBigNumber); // Convert BigNumber to a number
-        for (let i = 1; i < nextId; i++) {
-          const bid = await nftPlatformContract.bids(i);
+        for (let i = 1; i <= nextIdBigNumber; i++) {
+          const bid: Bid = await nftPlatformContract.bids(i.toString());
           allBids.push(bid);
         }
         console.log(allBids);

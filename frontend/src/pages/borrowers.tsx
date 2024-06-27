@@ -1,19 +1,11 @@
-import { Button, Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import { useSDK } from "@metamask/sdk-react";
-import { useEffect } from "react";
-import addresses from "@/utils/addresses";
-import usePlatformContract from "@/hooks/contracts/usePlatformContract";
-import { BigNumberish, ethers } from "ethers";
-import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
-import { useContracts } from "@/hooks/contracts/useContracts";
+import ManageBidModal from "@/components/ManageBidsModal";
 
 const Borrowers: React.FC = () => {
+  // can use later to show moodal when disconnected
   const { connected } = useSDK();
-  const { createBid } = usePlatformContract();
-  const { approve, getCurrentTokenId } = useCollateralTokenContract();
-  const { cusdcAddress, collateralTokenAddress } =
-    addresses.networks.linea_sepolia;
 
   return (
     <Flex
@@ -34,24 +26,7 @@ const Borrowers: React.FC = () => {
       >
         Borrowers
       </Heading>
-      <Button
-        onClick={async () => {
-          try {
-            const tokenId = await getCurrentTokenId();
-            await approve();
-            await createBid(
-              cusdcAddress,
-              ethers.parseUnits("1000000", 6),
-              collateralTokenAddress,
-              tokenId
-            );
-          } catch (error) {
-            console.error("Error in approve or createBid:", error);
-          }
-        }}
-      >
-        Create Bid
-      </Button>
+      <ManageBidModal />
     </Flex>
   );
 };

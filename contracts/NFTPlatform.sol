@@ -17,27 +17,18 @@ contract NFTPlatform is IERC721Receiver {
         address nftContract;
         uint256 tokenId;
         bool accepted;
-    }
-
-    struct Loan {
-        uint32 bidId;
-        address tokenContract;
-        uint256 askAmount;
-        address from;
-        address nftContract;
-        uint256 tokenId;
         bool defaulted;
         bool repaid;
+        address borrower;
         address lender;
     }
 
     // Storage
     mapping(uint32 => Bid) public bids;
-    mapping(address => Bid[]) public acceptedLoans;
+    mapping(address => mapping(uint32 => Bid)) public borrowerBids;
+    mapping(address => mapping(uint32 => Bid)) public lenderAcceptedLoans;
     mapping(address => bool) public acceptedTokens;
     mapping(address => bool) public acceptedNFTs;
-    mapping(uint32 => Loan) public loans;
-
     // Bid id
     uint32 public currentBidId;
     uint256 public interest = 1000;
@@ -73,6 +64,19 @@ contract NFTPlatform is IERC721Receiver {
         _;
     }
 
+    // Can implement this in RepayLoan(). You can still foster a incentivized
+    // platform without it (what are the implkications if someone else repays
+    // a stranger's loan?)
+    modifier onlyBorrower (uint32 bidId) {
+        require(bids[bidId].borrower == msg.sender, "Not the borrower of this loan!");
+        _;
+    }
+
+    modifier onlyLender (uint32 bidId) {
+        require(bids[bidId].lender == msg.sender, "");
+        _;
+    }
+ 
     // Functions
     function createBid(
         address _tokenAddress,
@@ -93,9 +97,14 @@ contract NFTPlatform is IERC721Receiver {
             nftContract: _nftContract,
             tokenId: _tokenId,
             from: msg.sender,
-            accepted: false
+            accepted: false,
+            defaulted: false,
+            repaid: false,
+            borrower: msg.sender,
+            lender: address(0x0)
         });
         bids[currentBidId] = newBid;
+        borrowerBids[msg.sender][currentBidId] = newBid;
         emit BidCreated(
             _tokenAddress,
             _amount,
@@ -117,29 +126,22 @@ contract NFTPlatform is IERC721Receiver {
             "Token transfer failed"
         );
 
-        bid.accepted = true;
-        // bid.dueDate = block.timestamp + duration;
-
         IERC721 nft = IERC721(bid.nftContract);
         require(
             nft.ownerOf(bid.tokenId) == address(this),
             "NFT is not staked in the contract"
         );
 
+        // update bid
+        bid.accepted = true;
+        bid.lender = msg.sender;
+
+        address borrower = bid.from;
+        borrowerBids[borrower][bidId].accepted = true;
+        lenderAcceptedLoans[msg.sender][bidId].accepted = true;
+
         emit BidAccepted(bidId, msg.sender);
 
-        Loan memory loan = Loan({
-            bidId: bid.bidId,
-            tokenContract: bid.tokenContract,
-            askAmount: bid.askAmount,
-            from: bid.from,
-            nftContract: bid.nftContract,
-            tokenId: bid.tokenId,
-            defaulted: false,
-            repaid: false,
-            lender: msg.sender
-        });
-        loans[bidId] = loan;
     }
 
     function repayLoan(uint32 bidId) public {
@@ -153,6 +155,7 @@ contract NFTPlatform is IERC721Receiver {
         IERC20 token = IERC20(bid.tokenContract);
 
         // can remove comment below and comment out `interest` variable for a more robust interest calc.
+        // to-do: implement calculate Interest
         // uint256 customInterest = calculateInterest(bid.askAmount, bid.dueDate - block.timestamp)
         uint256 totalPaymentRequired = bid.askAmount + interest;
 
@@ -168,25 +171,31 @@ contract NFTPlatform is IERC721Receiver {
         IERC721 nft = IERC721(bid.nftContract);
         nft.transferFrom(address(this), msg.sender, bid.tokenId);
 
-        Loan storage loan = loans[bidId];
-        loan.repaid = true;
+        bid.repaid = true;
+        borrowerBids[msg.sender][bidId].repaid = true;
+        address lender = bid.lender;
+        lenderAcceptedLoans[lender][bidId].repaid = true;
+        
         emit LoanRepaid(bidId, bid.tokenContract, totalPaymentRequired);
     }
 
     function defaultLoan(uint32 bidId) public {
-        Loan storage loan = loans[bidId];
-
+        Bid storage bid = bids[bidId];
         // add more requires depending on how deep you want your protocol tog o
         // for example, maybe the loan can only be defaulted if the duration has passed
-        require(!loan.defaulted, "Loan is already defaulted");
-        require(loan.lender == msg.sender, "Lender not the msg.sender!");
+        require(!bid.defaulted, "Loan is already defaulted");
+        require(bid.lender == msg.sender, "Lender not the msg.sender!");
 
-        IERC721 nft = IERC721(loan.nftContract);
-        require(nft.ownerOf(loan.tokenId) == address(this), "NFT not staked!");
+        IERC721 nft = IERC721(bid.nftContract);
+        require(nft.ownerOf(bid.tokenId) == address(this), "NFT not staked!");
+        nft.safeTransferFrom(address(this), msg.sender, bid.tokenId);
 
-        nft.safeTransferFrom(address(this), msg.sender, loan.tokenId);
+        bid.defaulted = true;
+        borrowerBids[msg.sender][bidId].defaulted = true;
 
-        emit LoanDefaulted(loan.bidId);
+        address lender = bid.lender;
+        lenderAcceptedLoans[lender][bidId].defaulted = true;
+        emit LoanDefaulted(bid.bidId);
     }
 
     function onERC721Received(

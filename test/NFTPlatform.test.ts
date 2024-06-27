@@ -43,7 +43,6 @@ describe("NFTPlatform", function () {
         await collateralToken.currentTokenId()
       );
   });
-
   it("should create a bid", async function () {
     const amount = ethers.toBigInt("1000");
     const tokenId = await collateralToken.currentTokenId();
@@ -88,11 +87,22 @@ describe("NFTPlatform", function () {
 
     const updatedBid = await nftPlatform.bids(bidId);
     expect(updatedBid.accepted).to.equal(true);
+
+    // Check that the borrowerBids mapping is updated with the correct values
+    const borrowerBid = await nftPlatform.borrowerBids(bid.from, bidId);
+    expect(borrowerBid.accepted).to.equal(true);
+
+    // Check that the lenderAcceptedLoans mapping is updated with the correct values
+    const lenderAcceptedLoan = await nftPlatform.lenderAcceptedLoans(
+      await addr2.getAddress(),
+      bidId
+    );
+    expect(lenderAcceptedLoan.accepted).to.equal(true);
   });
 
   it("should repay a loan", async function () {
     const bidId = await nftPlatform.currentBidId();
-    const loan = await nftPlatform.loans(bidId);
+    const loan = await nftPlatform.bids(bidId);
     const amountOwed = loan.askAmount + (await nftPlatform.interest());
     await cUSDC.transfer(addr1, await nftPlatform.interest());
     await cUSDC
@@ -103,7 +113,7 @@ describe("NFTPlatform", function () {
       .to.emit(nftPlatform, "LoanRepaid")
       .withArgs(bidId, await cUSDC.getAddress(), amountOwed);
 
-    const updatedLoan = await nftPlatform.loans(bidId);
+    const updatedLoan = await nftPlatform.bids(bidId);
     expect(updatedLoan.repaid).to.equal(true);
   });
   it("should default a loan", async function () {
@@ -150,15 +160,13 @@ describe("NFTPlatform", function () {
     const updatedBid = await nftPlatform.bids(bidId);
     expect(updatedBid.accepted).to.equal(true);
 
-    const loan = await nftPlatform.loans(bidId);
-
     // default loan
     await expect(nftPlatform.connect(addr2).defaultLoan(bidId))
       .to.emit(nftPlatform, "LoanDefaulted")
       .withArgs(bidId);
 
     // ensure that the borrower now owns the tokens by addr1
-    expect(await collateralToken.ownerOf(loan.tokenId)).to.equal(
+    expect(await collateralToken.ownerOf(updatedBid.tokenId)).to.equal(
       await addr2.getAddress()
     );
   });

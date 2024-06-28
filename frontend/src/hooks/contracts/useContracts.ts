@@ -4,6 +4,9 @@ import cUSDC from "../../utils/artifacts/contracts/cUSDC.sol/cUSDC.json";
 import NFTPlatform from "../../utils/artifacts/contracts/NFTPlatform.sol/NFTPlatform.json";
 import addresses from "../../utils/addresses";
 import { ethers } from "ethers";
+import * as dotenv from "dotenv";
+
+dotenv.config
 
 export function useContracts() {
   const { cusdcAddress, nftPlatformAddress, collateralTokenAddress } =

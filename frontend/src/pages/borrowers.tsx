@@ -1,7 +1,7 @@
 import { Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import { useSDK } from "@metamask/sdk-react";
-import ManageBidModal from "@/components/ManageBidsModal";
+import CreateBidModal from "@/components/CreateBidModal";
 import BidsTable from "@/components/BidsTable";
 import { useEffect, useState } from "react";
 import usePlatformContract from "@/hooks/contracts/usePlatformContract";
@@ -22,6 +22,7 @@ const Borrowers: React.FC = () => {
       direction="column"
       p={4}
       style={{ backgroundColor: "#303261" }}
+      gap={4}
     >
       <Heading
         style={{ color: "white" }}
@@ -30,10 +31,10 @@ const Borrowers: React.FC = () => {
         noOfLines={1}
         mt={19}
       >
-        Borrowers
+        Your bids
       </Heading>
-      <ManageBidModal />
-      <BidsTable bids={bids} />
+      <BidsTable bids={bids}/>
+      <CreateBidModal />
     </Flex>
   );
 };

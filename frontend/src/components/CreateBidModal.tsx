@@ -4,12 +4,15 @@ import { Button } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import addresses from "@/utils/addresses";
 
-const ManageBidModal = () => {
-    const {cusdcAddress, collateralTokenAddress} = addresses.networks.linea_sepolia;
-    const {createBid} = usePlatformContract();
-    const {approve, getCurrentTokenId} = useCollateralTokenContract();
+const CreateBidModal = () => {
+  const { cusdcAddress, collateralTokenAddress } =
+    addresses.networks.linea_sepolia;
+  const { createBid } = usePlatformContract();
+  const { approve, getCurrentTokenId } = useCollateralTokenContract();
   return (
-    <Button 
+    <Button
+      colorScheme="teal"
+      style={{ width: "100%" }}
       onClick={async () => {
         try {
           const tokenId = await getCurrentTokenId();
@@ -30,4 +33,4 @@ const ManageBidModal = () => {
   );
 };
 
-export default ManageBidModal;
+export default CreateBidModal;

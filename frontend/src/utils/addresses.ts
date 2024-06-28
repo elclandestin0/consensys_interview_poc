@@ -1,9 +1,9 @@
 export default {
     networks: {
         linea_sepolia: {
-            collateralTokenAddress: "0x45A2097699dEd64035ad6cb72Ec77e3271a6ddBC",
-            cusdcAddress: "0x288Acf57c575A6302D810112D5674fDBb365b3eA",
-            nftPlatformAddress: "0x80261B6285e7f9CE585fD9FF7e670586c01A9625"
+            collateralTokenAddress: "0x2B7F115B0c137850b040426003e8699207DDc46f",
+            cusdcAddress: "0x46F3798266bF6c80a9aD455a5DaacEd4cc19FE35",
+            nftPlatformAddress: "0x5012A20A0A8994797Eb82cA2b0E4f79d6345C23e"
         }
     }
 }

@@ -68,7 +68,7 @@ contract NFTPlatform is IERC721Receiver {
     // platform without it (what are the implkications if someone else repays
     // a stranger's loan?)
     modifier onlyBorrower (uint32 bidId) {
-        require(bids[bidId].borrower == msg.sender, "Not the borrower of this loan!");
+        require(bids[bidId].from == msg.sender, "Not the borrower of this loan!");
         _;
     }
 
@@ -100,7 +100,6 @@ contract NFTPlatform is IERC721Receiver {
             accepted: false,
             defaulted: false,
             repaid: false,
-            borrower: msg.sender,
             lender: address(0x0)
         });
         bids[currentBidId] = newBid;

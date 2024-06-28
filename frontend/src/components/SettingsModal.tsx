@@ -64,10 +64,10 @@ const SettingsModal = () => {
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Settings</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalContent backgroundColor="#27405d">
+          <ModalHeader color="white">Settings</ModalHeader>
+          <ModalCloseButton color="white"/>
+          <ModalBody color="white">
             <Tabs isFitted variant="enclosed">
               <TabList mb="1em">
                 <Tab>Balance</Tab>
@@ -88,7 +88,7 @@ const SettingsModal = () => {
             </Tabs>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="ghost" onClick={onClose} color="red">
               Close
             </Button>
           </ModalFooter>

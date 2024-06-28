@@ -41,6 +41,7 @@ const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
                 border="2px"
                 borderColor="teal"
                 backgroundColor="#27405d"
+                mt={4}
               >
                 <Td color="white" fontWeight="normal">
                   Bid {index + 1}
@@ -55,10 +56,10 @@ const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
                   {ethers.formatUnits(bid.askAmount, 6)}
                 </Td>
                 <Td color="green.300" fontWeight="normal">
-                  {ethers.parseUnits(bid.tokenId.toString())}
+                  {bid.nftContract}
                 </Td>
                 <Td color="green.300" fontWeight="normal">
-                  {ethers.parseUnits(bid.tokenId.toString())}
+                  {bid.tokenId.toString()}
                 </Td>
                 <Td color="green.300" fontWeight="normal">
                   {bid.accepted == true ? "Accepted" : "Pending"}

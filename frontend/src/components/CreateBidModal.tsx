@@ -1,35 +1,121 @@
-import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
-import usePlatformContract from "@/hooks/contracts/usePlatformContract";
-import { Button } from "@chakra-ui/react";
-import { ethers } from "ethers";
-import addresses from "@/utils/addresses";
+import {
+  Button,
+  Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  useDisclosure,
+  Box,
+} from "@chakra-ui/react";
+import { useState } from "react";
 
 const CreateBidModal = () => {
-  const { cusdcAddress, collateralTokenAddress } =
-    addresses.networks.linea_sepolia;
-  const { createBid } = usePlatformContract();
-  const { approve, getCurrentTokenId } = useCollateralTokenContract();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [tokenContract, setTokenContract] = useState("");
+  const [amount, setAmount] = useState("");
+  const [nftContract, setNftContract] = useState("");
+  const [tokenId, setTokenId] = useState("");
+
+  const handleCreateBid = async () => {
+    // Implement your bid creation logic here
+    console.log("Creating bid with values:", {
+      tokenContract,
+      amount,
+      nftContract,
+      tokenId,
+    });
+  };
+
   return (
-    <Button
-      colorScheme="teal"
-      style={{ width: "100%" }}
-      onClick={async () => {
-        try {
-          const tokenId = await getCurrentTokenId();
-          await approve();
-          await createBid(
-            cusdcAddress,
-            ethers.parseUnits("1000000", 6),
-            collateralTokenAddress,
-            tokenId
-          );
-        } catch (error) {
-          console.error("Error in approve or createBid:", error);
-        }
-      }}
-    >
-      Create Bid
-    </Button>
+    <>
+      <Button colorScheme="teal" onClick={onOpen}>
+        <Text p="4" fontSize="16px">
+          Create Bid
+        </Text>
+      </Button>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent backgroundColor="#27405d">
+          <ModalHeader color="white">Create Bid</ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody color="white">
+            <FormControl mb={4}>
+              <FormLabel htmlFor="amount" color="white">
+                Amount requested
+              </FormLabel>
+              <Input
+                id="amount"
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                type="number"
+                color="white"
+                focusBorderColor="pink.400"
+                fontSize="xl"
+              />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel htmlFor="token-contract" color="white">
+                From Token
+              </FormLabel>
+              <Input
+                id="token-contract"
+                placeholder="0x..."
+                value={tokenContract}
+                onChange={(e) => setTokenContract(e.target.value)}
+                color="white"
+                focusBorderColor="pink.400"
+                fontSize="xl"
+              />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel htmlFor="nft-contract" color="white">
+                NFT contract to stake
+              </FormLabel>
+              <Input
+                id="nft-contract"
+                placeholder="0x..."
+                value={nftContract}
+                onChange={(e) => setNftContract(e.target.value)}
+                color="white"
+                focusBorderColor="pink.400"
+                fontSize="xl"
+              />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel htmlFor="token-id" color="white">
+                Token ID
+              </FormLabel>
+              <Input
+                id="token-id"
+                placeholder="Token ID"
+                value={tokenId}
+                onChange={(e) => setTokenId(e.target.value)}
+                type="number"
+                color="white"
+                focusBorderColor="pink.400"
+                fontSize="xl"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="teal" onClick={handleCreateBid}>
+              Stake NFT & Add Bid
+            </Button>
+            <Button variant="ghost" onClick={onClose} color="red" ml={3}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

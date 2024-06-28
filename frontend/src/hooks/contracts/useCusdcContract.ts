@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useContracts } from "./useContracts"; // Import your useContracts hook
 import { ethers } from "ethers";
+import { useSDK } from "@metamask/sdk-react";
+import addresses from "@/utils/addresses";
 
 const useCusdcContract = () => {
   const { cusdcContract } = useContracts();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
+  const { account } = useSDK();
+  const {cusdcAddress, nftPlatformAddress} = addresses.networks.linea_sepolia;
 
-  useEffect(()=>{}, [cusdcContract]);
+  useEffect(() => {}, [cusdcContract, account]);
 
   const fetchTokenBalance = async (address: string): Promise<any> => {
     if (!cusdcContract) {
@@ -23,6 +27,37 @@ const useCusdcContract = () => {
       return [];
     }
   };
+
+  const approve = useCallback(
+    async (askAmount: any) => {
+      if (!cusdcContract || !account) {
+        console.error("Contract not initialized or invalid parameters.");
+        return;
+      }
+
+      const parsedAmount = ethers.parseUnits(askAmount.toString(), 6);
+
+      try {
+        const transaction = await cusdcContract.approve(
+          nftPlatformAddress,
+          askAmount,
+          {
+            from: account,
+          }
+        );
+        await transaction.wait();
+        console.log(
+          "Approved token ",
+          //   tokenId.toString(),
+          " from account ",
+          account
+        );
+      } catch (err) {
+        console.error("Error approving token:", err);
+      }
+    },
+    [cusdcContract, account, nftPlatformAddress]
+  );
 
   const mintTokens = async (): Promise<void> => {
     if (!cusdcContract) {
@@ -60,7 +95,7 @@ const useCusdcContract = () => {
     }
   }, [cusdcContract]);
 
-  return { fetchTokenBalance, mintTokens, fetchTokenSymbol, isLoading, error };
+  return { fetchTokenBalance, mintTokens, fetchTokenSymbol, approve, isLoading, error };
 };
 
 export default useCusdcContract;

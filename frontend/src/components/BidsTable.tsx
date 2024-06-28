@@ -1,19 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Table, Thead, Tbody, Tr, Th, Td, Box, Icon } from "@chakra-ui/react";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Box,
+  Icon,
+  useDisclosure,
+  Button,
+} from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { Bid } from "@/hooks/contracts/usePlatformContract";
 import { useContracts } from "@/hooks/contracts/useContracts";
+import ManageBidLendarModal from "./ManageBidLenderModal";
 
 interface BidsTableProps {
   bids: Bid[];
 }
 
 const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
   const handleRowClick = (index: any) => {
-    setSelectedRow(selectedRow === index ? null : index);
+    setSelectedBid(selectedBid === index ? null : index);
   };
-
   //   useEffect(() => {
   //     if (!investmentFundedPerSubscriber || !investmentBalance) return;
   //   }, []);
@@ -23,13 +34,13 @@ const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
       <Table variant="unstyled">
         <Thead>
           <Tr color="white">
-            <Th fontStyle="bold">Bid ID</Th>
             <Th>Token</Th>
             <Th>Bid requester</Th>
             <Th>Amount requested</Th>
             <Th>NFT collateral</Th>
             <Th>Token ID</Th>
             <Th>Status</Th>
+            <Th>Manage Bid</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -43,9 +54,6 @@ const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
                 backgroundColor="#27405d"
                 mt={4}
               >
-                <Td color="white" fontWeight="normal">
-                  Bid {index + 1}
-                </Td>
                 <Td color="white" fontWeight="normal">
                   {bid.tokenContract}
                 </Td>
@@ -63,6 +71,9 @@ const BidsTable: React.FC<BidsTableProps> = ({ bids }) => {
                 </Td>
                 <Td color="green.300" fontWeight="normal">
                   {bid.accepted == true ? "Accepted" : "Pending"}
+                </Td>
+                <Td>
+                  <ManageBidLendarModal bid={bid}/>
                 </Td>
               </Tr>
             </React.Fragment>

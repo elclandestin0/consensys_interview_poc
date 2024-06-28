@@ -2,10 +2,14 @@ import { Flex, Heading } from "@chakra-ui/react";
 import styles from "@/styles/Home.module.css";
 import { useSDK } from "@metamask/sdk-react";
 import { useEffect } from "react";
+import usePlatformContract from "@/hooks/contracts/usePlatformContract";
+import BidsTable from "@/components/BidsTable";
 
 const Lenders: React.FC = () => {
   const { connected } = useSDK();
+  const { bids } = usePlatformContract();
 
+  useEffect(()=>{}, [bids])
 
   return (
     <Flex
@@ -24,8 +28,9 @@ const Lenders: React.FC = () => {
         noOfLines={1}
         mt={19}
       >
-        Lenders
+        All bids
       </Heading>
+      <BidsTable bids={bids} />
     </Flex>
   );
 };

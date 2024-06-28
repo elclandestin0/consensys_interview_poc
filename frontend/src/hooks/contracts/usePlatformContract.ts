@@ -98,6 +98,29 @@ const usePlatformContract = () => {
     [nftPlatformContract, account]
   );
 
+  const acceptBid = useCallback(
+    async (bidId: number) => {
+      if (!nftPlatformContract || bidId == null) {
+        console.error("Contract not initialized or invalid parameters.");
+        return;
+      }
+
+      try {
+        const id = await nftPlatformContract.currentBidId();
+        console.log(Number(id));
+
+        const transaction = await nftPlatformContract.acceptBid(await nftPlatformContract.currentBidId(), {
+          from: account,
+        });
+        await transaction.wait();
+        console.log("Bid accepted successfully");
+      } catch (err) {
+        console.error("Error accepting bid:", err);
+      }
+    },
+    [nftPlatformContract, account]
+  );
+
   useEffect(() => {
     if (nftPlatformContract) {
       setIsLoading(true); // Set loading state before fetching
@@ -109,7 +132,7 @@ const usePlatformContract = () => {
     }
   }, [nftPlatformContract]);
 
-  return { fetchBids, createBid, bids };
+  return { fetchBids, createBid, bids, acceptBid };
 };
 
 export default usePlatformContract;

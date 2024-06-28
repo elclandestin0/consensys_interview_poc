@@ -19,7 +19,6 @@ contract NFTPlatform is IERC721Receiver {
         bool accepted;
         bool defaulted;
         bool repaid;
-        address borrower;
         address lender;
     }
 

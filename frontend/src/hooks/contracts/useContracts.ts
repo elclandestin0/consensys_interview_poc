@@ -20,21 +20,31 @@ export function useContracts() {
       if (typeof window.ethereum !== "undefined") {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum);
+
+          const API_KEY: any = process.env.INFURA_ENDPOINT;
+          const PRIVATE_KEY: any = process.env.MNEMONIC_PHRASE;
+
+          const infuraProvider = new ethers.InfuraProvider("sepolia", API_KEY);
           await provider.send("eth_requestAccounts", []); // Request account access if needed
-          const signer = await provider.getSigner();
+
+          const signer = new ethers.Wallet(PRIVATE_KEY, infuraProvider);
 
           const nftPlatform = new ethers.Contract(
             nftPlatformAddress,
             NFTPlatform.abi,
-            signer
+            provider ? await provider.getSigner() : signer
           );
 
-          const cusdc = new ethers.Contract(cusdcAddress, cUSDC.abi, signer);
+          const cusdc = new ethers.Contract(
+            cusdcAddress,
+            cUSDC.abi,
+            provider ? await provider.getSigner() : signer
+          );
 
           const collateralToken = new ethers.Contract(
             collateralTokenAddress,
             CollateralToken.abi,
-            signer
+            provider ? await provider.getSigner() : signer
           );
           setCusdcContract(cusdc);
           setNftPlatformContract(nftPlatform);

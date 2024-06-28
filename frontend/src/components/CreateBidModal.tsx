@@ -1,4 +1,4 @@
-import useERC721 from "@/hooks/contracts/useERC721";
+import usePlatformContract from "@/hooks/contracts/usePlatformContract";
 import {
   Button,
   Text,
@@ -14,7 +14,6 @@ import {
   Input,
   useDisclosure,
   Box,
-  Select,
 } from "@chakra-ui/react";
 import { useState } from "react";
 
@@ -24,16 +23,19 @@ const CreateBidModal = () => {
   const [amount, setAmount] = useState("");
   const [nftContract, setNftContract] = useState("");
   const [tokenId, setTokenId] = useState("");
-  const { approvedTokens } = useERC721();
+  const { createBid } = usePlatformContract();
 
   const handleCreateBid = async () => {
-    // Implement your bid creation logic here
-    console.log("Creating bid with values:", {
-      tokenContract,
-      amount,
-      nftContract,
-      tokenId,
-    });
+    try {
+      await createBid(
+        "0x46F3798266bF6c80a9aD455a5DaacEd4cc19FE35",
+        amount,
+        nftContract,
+        tokenId
+      );
+    } catch (err) {
+      console.error("Error in handleCreateBid:", err);
+    }
   };
 
   return (
@@ -65,42 +67,18 @@ const CreateBidModal = () => {
               />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel htmlFor="token-contract" color="white">
-                From Token
+              <FormLabel htmlFor="nft-contract" color="white">
+                NFT Contract to stake
               </FormLabel>
               <Input
-                id="token-contract"
+                id="nft-contract"
                 placeholder="0x..."
-                value={tokenContract}
-                onChange={(e) => setTokenContract(e.target.value)}
+                value={nftContract}
+                onChange={(e) => setNftContract(e.target.value)}
                 color="white"
                 focusBorderColor="pink.400"
                 fontSize="xl"
               />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel htmlFor="nft-contract" color="white">
-                NFT contract to stake
-              </FormLabel>
-              <Select
-                id="token-contract"
-                placeholder="Select Token"
-                value={tokenContract}
-                onChange={(e) => setNftContract(e.target.value)}
-                color="gray.400"
-                focusBorderColor="pink.400"
-                fontSize="xl"
-              >
-                {approvedTokens.map((token, index) => (
-                  <option
-                    key={index}
-                    value={token.address}
-                    color="black"
-                  >
-                    {token.symbol}
-                  </option>
-                ))}
-              </Select>
             </FormControl>
             <FormControl mb={4}>
               <FormLabel htmlFor="token-id" color="white">

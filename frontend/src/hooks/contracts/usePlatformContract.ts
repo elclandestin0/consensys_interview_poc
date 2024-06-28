@@ -3,6 +3,7 @@ import { useContracts } from "./useContracts"; // Import your useContracts hook
 import { ethers } from "ethers";
 import addresses from "../../utils/addresses";
 import { useSDK } from "@metamask/sdk-react";
+
 export interface Bid {
   bidId: number;
   tokenContract: string;
@@ -70,9 +71,11 @@ const usePlatformContract = () => {
       }
 
       try {
+        const parsedAmount = ethers.parseUnits(amount, 6);
+        console.log({ amount });
         const transaction = await nftPlatformContract.createBid(
           tokenAddress,
-          amount,
+          parsedAmount,
           nftContract,
           tokenId,
           {

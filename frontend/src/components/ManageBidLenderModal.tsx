@@ -35,7 +35,7 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
     console.log("Paying loan for bid:", bid);
     await approve(bid?.askAmount);
     console.log(Number(bid?.bidId));
-    await acceptBid(Number(bid?.bidId))
+    await acceptBid(Number(bid?.bidId));
   };
 
   if (!bid) return null;
@@ -88,7 +88,13 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="teal" onClick={handleAcceptBid}>
-              {router.pathname === "/lenders" ? "Lend" : "Repay"}
+              {router.pathname === "/lenders"
+                ? bid.accepted
+                  ? "Default"
+                  : "Lend"
+                : bid.accepted
+                ? "Repay"
+                : "Pending"}
             </Button>
             <Button variant="ghost" onClick={onClose} color="red" ml={3}>
               Close

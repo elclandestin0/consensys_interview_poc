@@ -10,7 +10,7 @@ dotenv.config();
 
 const { collateralTokenAddress } = addresses.networks.linea_sepolia;
 const APPROVED_TOKENS = [
-  { address: collateralTokenAddress, symbol: "cNFT", abi: CollateralToken.abi },
+  { address: collateralTokenAddress, symbol: "cSYS", abi: CollateralToken.abi },
   {
     address: collateralTokenAddress,
     symbol: "cNFT copy",
@@ -47,7 +47,7 @@ const useERC721 = () => {
         setError("Signer not initialized");
         return;
       }
-      
+
       try {
         const contract = new ethers.Contract(contractAddress, abi, signer);
         console.log("account" , account);
@@ -63,14 +63,16 @@ const useERC721 = () => {
   );
 
   const fetchBalance = useCallback(
-    async (contractAddress: string, abi: any, ownerAddress: any) => {
+    async (contractAddress: string, abi: any) => {
       if (!provider) {
         setError("Provider not initialized");
         return;
       }
       try {
         const contract = new ethers.Contract(contractAddress, abi, await provider.getSigner());
-        const balance = await contract.balanceOf(ownerAddress);
+        console.log("getting balance");
+        const balance = await contract.balanceOf(account);
+        console.log("returning balance");
         return balance.toString();
       } catch (err) {
         console.error("Error fetching balance:", err);
@@ -78,7 +80,7 @@ const useERC721 = () => {
         return null;
       }
     },
-    [provider]
+    [provider, account]
   );
 
   return {

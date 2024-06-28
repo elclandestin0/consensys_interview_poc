@@ -19,13 +19,13 @@ import {
 import { useState, useEffect } from "react";
 import useERC721 from "@/hooks/contracts/useERC721";
 import { useSDK } from "@metamask/sdk-react";
+import { TokenList } from "./TokenList";
 
 const SettingsModal = () => {
   const { account } = useSDK();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { approvedTokens, mintToken, fetchBalance, error } = useERC721();
   const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState(null);
 
   const handleMintCollateralToken = async () => {
     setLoading(true);
@@ -42,16 +42,8 @@ const SettingsModal = () => {
   };
 
   useEffect(() => {
-    const fetchTokenBalance = async () => {
-      if (approvedTokens.length > 0) {
-        const token = approvedTokens[0]; // Using the first token as an example
-        const balance = await fetchBalance(token.address, token.abi, account);
-        setBalance(balance);
-      }
-    };
-
-    fetchTokenBalance();
-  }, [approvedTokens, fetchBalance, account]);
+    console.log(approvedTokens);
+  }, [approvedTokens]);
 
   return (
     <>
@@ -82,10 +74,7 @@ const SettingsModal = () => {
               <TabPanels>
                 <TabPanel>
                   {approvedTokens.length > 0 && (
-                    <Box>
-                      <Text>Symbol: {approvedTokens[0].symbol}</Text>
-                      <Text>Balance: {balance}</Text>
-                    </Box>
+                    <TokenList tokens={approvedTokens} />
                   )}
                 </TabPanel>
                 <TabPanel>

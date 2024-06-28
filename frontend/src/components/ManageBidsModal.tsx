@@ -25,7 +25,7 @@ const ManageBidModal = () => {
         }
       }}
     >
-      Manage Bids
+      Create Bid
     </Button>
   );
 };

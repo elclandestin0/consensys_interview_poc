@@ -20,6 +20,7 @@ import usePlatformContract, {
   Bid,
 } from "@/hooks/contracts/usePlatformContract";
 import useCusdcContract from "@/hooks/contracts/useCusdcContract";
+import { useRouter } from "next/router";
 
 interface PayLoanModalProps {
   bid: Bid | null;
@@ -29,9 +30,10 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
   const { acceptBid } = usePlatformContract();
   const { approve } = useCusdcContract();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
   const handleAcceptBid = async () => {
     console.log("Paying loan for bid:", bid);
-    // await approve(bid?.askAmount);
+    await approve(bid?.askAmount);
     console.log(Number(bid?.bidId));
     await acceptBid(Number(bid?.bidId))
   };
@@ -86,7 +88,7 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="teal" onClick={handleAcceptBid}>
-              Lend
+              {router.pathname === "/lenders" ? "Lend" : "Repay"}
             </Button>
             <Button variant="ghost" onClick={onClose} color="red" ml={3}>
               Close

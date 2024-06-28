@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useContracts } from "./useContracts"; // Import your useContracts hook
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import addresses from "../../utils/addresses";
 import { useSDK } from "@metamask/sdk-react";
 import useCollateralTokenContract from "./useCollateralTokenContract";
@@ -80,6 +80,7 @@ const usePlatformContract = () => {
          // Ensure tokenId is a number
          let parsedTokenId: any = BigInt(tokenId);
          console.log(parsedTokenId);
+         console.log(parsedAmount);
 
          const transaction = await nftPlatformContract.createBid(
            tokenAddress,
@@ -91,6 +92,7 @@ const usePlatformContract = () => {
            }
          );
          await transaction.wait();
+         console.log("created bid successfully");
       } catch (err) {
         console.error("Error creating bid:", err);
       }
@@ -106,10 +108,10 @@ const usePlatformContract = () => {
       }
 
       try {
-        const id = await nftPlatformContract.currentBidId();
-        console.log(Number(id));
+        const id = bidId;
+        console.log(id);
 
-        const transaction = await nftPlatformContract.acceptBid(await nftPlatformContract.currentBidId(), {
+        const transaction = await nftPlatformContract.acceptBid(id, {
           from: account,
         });
         await transaction.wait();

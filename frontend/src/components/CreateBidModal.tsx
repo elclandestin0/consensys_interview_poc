@@ -18,8 +18,10 @@ import {
 } from "@chakra-ui/react";
 import { JsonRpcApiProvider } from "ethers";
 import { useState } from "react";
+import addresses from "@/utils/addresses";
 
 const CreateBidModal = () => {
+  const {cusdcAddress, collateralTokenAddress} = addresses.networks.linea_sepolia;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [tokenContract, setTokenContract] = useState("");
   const [amount, setAmount] = useState("");
@@ -30,11 +32,11 @@ const CreateBidModal = () => {
 
   const handleCreateBid = async () => {
     try {
-      // await approve();
+      await approve();
       await createBid(
-        "0x46F3798266bF6c80a9aD455a5DaacEd4cc19FE35",
+        cusdcAddress,
         amount,
-        nftContract,
+        collateralTokenAddress,
         tokenId
       );
     } catch (err) {

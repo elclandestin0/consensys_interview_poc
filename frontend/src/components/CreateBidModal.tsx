@@ -1,3 +1,4 @@
+import useCollateralTokenContract from "@/hooks/contracts/useCollateralTokenContract";
 import usePlatformContract from "@/hooks/contracts/usePlatformContract";
 import {
   Button,
@@ -15,6 +16,7 @@ import {
   useDisclosure,
   Box,
 } from "@chakra-ui/react";
+import { JsonRpcApiProvider } from "ethers";
 import { useState } from "react";
 
 const CreateBidModal = () => {
@@ -23,10 +25,12 @@ const CreateBidModal = () => {
   const [amount, setAmount] = useState("");
   const [nftContract, setNftContract] = useState("");
   const [tokenId, setTokenId] = useState("");
-  const { createBid } = usePlatformContract();
+  const {approve} = useCollateralTokenContract();
+  const { createBid} = usePlatformContract();
 
   const handleCreateBid = async () => {
     try {
+      // await approve();
       await createBid(
         "0x46F3798266bF6c80a9aD455a5DaacEd4cc19FE35",
         amount,

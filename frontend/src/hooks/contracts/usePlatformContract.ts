@@ -3,6 +3,7 @@ import { useContracts } from "./useContracts"; // Import your useContracts hook
 import { ethers } from "ethers";
 import addresses from "../../utils/addresses";
 import { useSDK } from "@metamask/sdk-react";
+import useCollateralTokenContract from "./useCollateralTokenContract";
 
 export interface Bid {
   bidId: number;
@@ -19,6 +20,8 @@ export interface Bid {
 }
 
 const usePlatformContract = () => {
+  const {cusdcAddress, collateralTokenAddress} = addresses.networks.linea_sepolia;
+  const { getCurrentTokenId } = useCollateralTokenContract();
   const { nftPlatformContract, cusdcContract } = useContracts();
   const { account } = useSDK(); // Get the current account from MetaMask
   const [bids, setBids] = useState<Bid[]>([]);
@@ -71,19 +74,23 @@ const usePlatformContract = () => {
       }
 
       try {
-        const parsedAmount = ethers.parseUnits(amount, 6);
-        console.log({ amount });
-        const transaction = await nftPlatformContract.createBid(
-          tokenAddress,
-          parsedAmount,
-          nftContract,
-          tokenId,
-          {
-            from: account,
-          }
-        );
-        await transaction.wait();
-        console.log("Bid created successfully");
+         // Ensure amount is a string before parsing to BigNumber
+         const parsedAmount = ethers.parseUnits(amount.toString(), 6);
+
+         // Ensure tokenId is a number
+         let parsedTokenId: any = BigInt(tokenId);
+         console.log(parsedTokenId);
+
+         const transaction = await nftPlatformContract.createBid(
+           tokenAddress,
+           parsedAmount,
+           nftContract,
+           parsedTokenId,
+           {
+             from: account,
+           }
+         );
+         await transaction.wait();
       } catch (err) {
         console.error("Error creating bid:", err);
       }

@@ -19,7 +19,9 @@ import {
 import { useState, useEffect } from "react";
 import useERC721 from "@/hooks/contracts/useERC721";
 import { useSDK } from "@metamask/sdk-react";
-import { TokenList } from "./TokenList";
+import { TokenList } from "@/components/TokenList";
+import { MintButtonList } from "@/components/MintButtonList";
+
 
 const SettingsModal = () => {
   const { account } = useSDK();
@@ -78,15 +80,9 @@ const SettingsModal = () => {
                   )}
                 </TabPanel>
                 <TabPanel>
-                  <Button
-                    colorScheme="teal"
-                    isLoading={loading}
-                    onClick={handleMintCollateralToken}
-                    mb={4}
-                    width="100%"
-                  >
-                    Mint from Collateral Token
-                  </Button>
+                  {approvedTokens.length > 0 && (
+                    <MintButtonList tokens={approvedTokens} onMint={handleMintCollateralToken} />
+                  )}
                 </TabPanel>
               </TabPanels>
             </Tabs>

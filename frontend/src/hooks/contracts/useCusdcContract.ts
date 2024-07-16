@@ -9,11 +9,14 @@ const useCusdcContract = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
   const { account } = useSDK();
-  const {cusdcAddress, nftPlatformAddress} = addresses.networks.linea_sepolia;
+  const { nftPlatformAddress } = addresses.networks.linea_sepolia;
 
   useEffect(() => {}, [cusdcContract, account]);
 
-  const fetchTokenBalance = async (address: string): Promise<any> => {
+  const fetchTokenBalance = async (
+    address: string | undefined
+  ): Promise<any> => {
+    console.log(cusdcContract);
     if (!cusdcContract) {
       console.error("Contract not initialized.");
       return null;
@@ -95,7 +98,14 @@ const useCusdcContract = () => {
     }
   }, [cusdcContract]);
 
-  return { fetchTokenBalance, mintTokens, fetchTokenSymbol, approve, isLoading, error };
+  return {
+    fetchTokenBalance,
+    mintTokens,
+    fetchTokenSymbol,
+    approve,
+    isLoading,
+    error,
+  };
 };
 
 export default useCusdcContract;

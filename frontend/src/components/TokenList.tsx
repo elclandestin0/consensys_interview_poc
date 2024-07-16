@@ -1,23 +1,28 @@
+import useCusdcContract from "@/hooks/contracts/useCusdcContract";
 import useERC721 from "@/hooks/contracts/useERC721";
-import { Box, Flex, Text, Stack } from "@chakra-ui/react";
+import { Box, Flex, Text, Stack, AccordionIcon } from "@chakra-ui/react";
 import { useSDK } from "@metamask/sdk-react";
 import { useEffect, useState } from "react";
 
 const TokenInfo = (token: any) => {
   const [balance, setBalance] = useState(null);
   const { approvedTokens, fetchBalance } = useERC721();
+  const { fetchTokenBalance } = useCusdcContract();
   const { account } = useSDK();
 
   useEffect(() => {
-    const fetchTokenBalance = async () => {
-      if (approvedTokens.length > 0) {
-        const balance = await fetchBalance(token.token.address, token.token.abi);
+    const getBalance = async (symbol: any) => {
+      // if (approvedTokens.length > 0) {
+        const balance =
+          symbol == "Collateral NFT"
+            ? await fetchBalance(token.token.address, token.token.abi)
+            : await fetchTokenBalance(account);
         setBalance(balance);
-      }
+      // }
       console.log(token);
-    }; 
+    };
 
-    fetchTokenBalance();
+    getBalance(token.token.symbol);
   }, [approvedTokens, fetchBalance, account]);
 
   return (

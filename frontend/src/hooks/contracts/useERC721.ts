@@ -1,26 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
-import addresses from "@/utils/addresses";
-import CollateralToken from "@/utils/artifacts/contracts/CollateralToken.sol/CollateralToken.json";
 
+import {APPROVED_TOKENS} from '@/utils/approvedTokens';
 import * as dotenv from "dotenv";
 import { useSDK } from "@metamask/sdk-react";
 
 dotenv.config();
-
-const { collateralTokenAddress } = addresses.networks.linea_sepolia;
-const APPROVED_TOKENS = [
-  {
-    address: collateralTokenAddress,
-    symbol: "Collateral NFT",
-    abi: CollateralToken.abi,
-  },
-  {
-    address: cusdcAddress,
-    symbol: "cUSDC",
-    abi: cusdc.abi
-  }
-];
 
 const useERC721 = () => {
   const { account } = useSDK();
@@ -82,7 +67,6 @@ const useERC721 = () => {
           await provider.getSigner()
         );
         const balance = await contract.balanceOf(account);
-        console.log(balance.toString());
         return balance.toString();
       } catch (err) {
         console.error("Error fetching balance:", err);

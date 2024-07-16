@@ -21,18 +21,23 @@ import useERC721 from "@/hooks/contracts/useERC721";
 import { useSDK } from "@metamask/sdk-react";
 import { TokenList } from "@/components/TokenList";
 import { MintButtonList } from "@/components/MintButtonList";
-
+import {
+  APPROVED_721_TOKENS,
+  APPROVED_20_TOKENS,
+} from "@/utils/approvedTokens";
+import useCusdcContract from "@/hooks/contracts/useCusdcContract";
 
 const SettingsModal = () => {
   const { account } = useSDK();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { approvedTokens, mintToken, fetchBalance, error } = useERC721();
+  const { mintToken, fetchBalance, error } = useERC721();
+  const {mintTokens} = useCusdcContract();
   const [loading, setLoading] = useState(false);
 
   const handleMintCollateralToken = async () => {
     setLoading(true);
     try {
-      const token = approvedTokens[0]; // Using the first token as an example
+      const token = APPROVED_721_TOKENS[0]; // Using the first token as an example
       await mintToken(token.address, token.abi);
       console.log("Minting collateral token...");
     } catch (error) {
@@ -44,8 +49,9 @@ const SettingsModal = () => {
   };
 
   useEffect(() => {
-    console.log(approvedTokens);
-  }, [approvedTokens]);
+    console.log(APPROVED_721_TOKENS);
+    console.log(APPROVED_20_TOKENS);
+  }, [APPROVED_721_TOKENS, APPROVED_20_TOKENS]);
 
   return (
     <>
@@ -66,7 +72,7 @@ const SettingsModal = () => {
         <ModalOverlay />
         <ModalContent backgroundColor="#27405d">
           <ModalHeader color="white">Settings</ModalHeader>
-          <ModalCloseButton color="white"/>
+          <ModalCloseButton color="white" />
           <ModalBody color="white">
             <Tabs isFitted>
               <TabList mb="1em">
@@ -75,13 +81,19 @@ const SettingsModal = () => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  {approvedTokens.length > 0 && (
-                    <TokenList tokens={approvedTokens} />
+                  {APPROVED_20_TOKENS.length > 0 && (
+                    <TokenList tokens={APPROVED_20_TOKENS} />
+                  )}
+                  {APPROVED_721_TOKENS.length > 0 && (
+                    <TokenList tokens={APPROVED_721_TOKENS} />
                   )}
                 </TabPanel>
                 <TabPanel>
-                  {approvedTokens.length > 0 && (
-                    <MintButtonList tokens={approvedTokens} onMint={handleMintCollateralToken} />
+                  {APPROVED_721_TOKENS.length > 0 && (
+                    <MintButtonList
+                      tokens={APPROVED_721_TOKENS}
+                      onMint={handleMintCollateralToken}
+                    />
                   )}
                 </TabPanel>
               </TabPanels>

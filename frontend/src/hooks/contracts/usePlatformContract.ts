@@ -20,10 +20,7 @@ export interface Bid {
 }
 
 const usePlatformContract = () => {
-  const { cusdcAddress, collateralTokenAddress } =
-    addresses.networks.linea_sepolia;
-  const { getCurrentTokenId } = useCollateralTokenContract();
-  const { nftPlatformContract, cusdcContract } = useContracts();
+  const { nftPlatformContract } = useContracts();
   const { account } = useSDK(); // Get the current account from MetaMask
   const [bids, setBids] = useState<Bid[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +41,6 @@ const usePlatformContract = () => {
           const bid: any = await nftPlatformContract.bids(i.toString());
           allBids.push(bid);
         }
-        console.log(allBids);
         setBids(allBids);
         setIsLoading(false);
       } else {

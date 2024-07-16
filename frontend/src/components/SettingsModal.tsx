@@ -68,7 +68,7 @@ const SettingsModal = () => {
           <ModalHeader color="white">Settings</ModalHeader>
           <ModalCloseButton color="white"/>
           <ModalBody color="white">
-            <Tabs isFitted variant="enclosed">
+            <Tabs isFitted>
               <TabList mb="1em">
                 <Tab>Balance</Tab>
                 <Tab>Actions</Tab>

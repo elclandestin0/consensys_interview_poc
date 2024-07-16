@@ -27,15 +27,43 @@ interface PayLoanModalProps {
 }
 
 const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
-  const { acceptBid } = usePlatformContract();
+  const { acceptBid, repayLoan, defaultLoan } = usePlatformContract();
   const { approve } = useCusdcContract();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  const handleAcceptBid = async () => {
-    console.log("Paying loan for bid:", bid);
-    await approve(bid?.askAmount);
-    console.log(Number(bid?.bidId));
-    await acceptBid(Number(bid?.bidId));
+
+  const handleManageBid = async () => {
+    const statusLogic =
+      router.pathname === "/lenders"
+        ? bid.accepted
+          ? "Default"
+          : "Lend"
+        : bid.accepted
+        ? "Repay"
+        : "Pending";
+
+    console.log("Managing bid with status:", statusLogic);
+
+    try {
+      if (statusLogic === "Repay") {
+        console.log("Repaying loan for bid:", bid);
+        await approve(ethers.MaxUint256); // Approving a large amount
+        await repayLoan(Number(bid?.bidId));
+      } else if (statusLogic === "Default") {
+        console.log("Defaulting loan for bid:", bid);
+        await defaultLoan(Number(bid?.bidId));
+      } else if (statusLogic === "Lend") {
+        console.log("Lending for bid:", bid[0]);
+        // await approve(bid?.askAmount);
+        console.log("approved. accepting bid ...");
+        await acceptBid(bid[0]);
+        console.log("bid accepted");
+      } else {
+        console.log("Pending status, no action taken.");
+      }
+    } catch (err) {
+      console.error("Error managing bid:", err);
+    }
   };
 
   if (!bid) return null;
@@ -50,7 +78,7 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent backgroundColor="#27405d">
-          <ModalHeader color="white">Lend</ModalHeader>
+          <ModalHeader color="white">Manage Bid</ModalHeader>
           <ModalCloseButton color="white" />
           <ModalBody color="white">
             <FormControl mb={4}>
@@ -87,7 +115,11 @@ const ManageBidLenderModal: React.FC<PayLoanModalProps> = ({ bid }) => {
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="teal" onClick={handleAcceptBid}>
+            <Button
+              colorScheme="teal"
+              onClick={handleManageBid}
+              isDisabled={!bid.accepted && router.pathname === "/borrowers"}
+            >
               {router.pathname === "/lenders"
                 ? bid.accepted
                   ? "Default"

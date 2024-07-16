@@ -10,12 +10,16 @@ dotenv.config();
 
 const { collateralTokenAddress } = addresses.networks.linea_sepolia;
 const APPROVED_TOKENS = [
-  { address: collateralTokenAddress, symbol: "cSYS", abi: CollateralToken.abi },
   {
     address: collateralTokenAddress,
-    symbol: "cNFT copy",
+    symbol: "Collateral NFT",
     abi: CollateralToken.abi,
   },
+  {
+    address: cusdcAddress,
+    symbol: "cUSDC",
+    abi: cusdc.abi
+  }
 ];
 
 const useERC721 = () => {
@@ -29,7 +33,7 @@ const useERC721 = () => {
     const initProvider = async () => {
       if (typeof window.ethereum !== "undefined") {
         const web3Provider = new ethers.BrowserProvider(window.ethereum);
-         await web3Provider.send("eth_requestAccounts", []); // Request account access
+        // await web3Provider.send("eth_requestAccounts", []); // Request account access
         setProvider(web3Provider);
         const signer = await web3Provider.getSigner();
         setSigner(signer);
@@ -43,14 +47,17 @@ const useERC721 = () => {
 
   const mintToken = useCallback(
     async (contractAddress: string, abi: any) => {
+    console.log("minting token..");
       if (!signer) {
         setError("Signer not initialized");
         return;
       }
 
+      console.log("trying to mint..");
+
       try {
         const contract = new ethers.Contract(contractAddress, abi, signer);
-        console.log("account" , account);
+        console.log("account", account);
         console.log((await contract.currentTokenId()).toString());
         const tx = await contract.mint(account); // Assuming mint function takes recipient address and amount
         await tx.wait();
@@ -69,10 +76,13 @@ const useERC721 = () => {
         return;
       }
       try {
-        const contract = new ethers.Contract(contractAddress, abi, await provider.getSigner());
-        console.log("getting balance");
+        const contract = new ethers.Contract(
+          contractAddress,
+          abi,
+          await provider.getSigner()
+        );
         const balance = await contract.balanceOf(account);
-        console.log("returning balance");
+        console.log(balance.toString());
         return balance.toString();
       } catch (err) {
         console.error("Error fetching balance:", err);

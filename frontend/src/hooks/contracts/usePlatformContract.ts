@@ -20,12 +20,12 @@ export interface Bid {
 }
 
 const usePlatformContract = () => {
-  const {cusdcAddress, collateralTokenAddress} = addresses.networks.linea_sepolia;
+  const { cusdcAddress, collateralTokenAddress } =
+    addresses.networks.linea_sepolia;
   const { getCurrentTokenId } = useCollateralTokenContract();
   const { nftPlatformContract, cusdcContract } = useContracts();
   const { account } = useSDK(); // Get the current account from MetaMask
   const [bids, setBids] = useState<Bid[]>([]);
-  // const [ownedPolicies, setOwnedPolicies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -74,25 +74,25 @@ const usePlatformContract = () => {
       }
 
       try {
-         // Ensure amount is a string before parsing to BigNumber
-         const parsedAmount = ethers.parseUnits(amount.toString(), 6);
+        // Ensure amount is a string before parsing to BigNumber
+        const parsedAmount = ethers.parseUnits(amount.toString(), 6);
 
-         // Ensure tokenId is a number
-         let parsedTokenId: any = BigInt(tokenId);
-         console.log(parsedTokenId);
-         console.log(parsedAmount);
+        // Ensure tokenId is a number
+        let parsedTokenId: any = BigInt(tokenId);
+        console.log(parsedTokenId);
+        console.log(parsedAmount);
 
-         const transaction = await nftPlatformContract.createBid(
-           tokenAddress,
-           parsedAmount,
-           nftContract,
-           parsedTokenId,
-           {
-             from: account,
-           }
-         );
-         await transaction.wait();
-         console.log("created bid successfully");
+        const transaction = await nftPlatformContract.createBid(
+          tokenAddress,
+          parsedAmount,
+          nftContract,
+          parsedTokenId,
+          {
+            from: account,
+          }
+        );
+        await transaction.wait();
+        console.log("created bid successfully");
       } catch (err) {
         console.error("Error creating bid:", err);
       }
@@ -101,6 +101,32 @@ const usePlatformContract = () => {
   );
 
   const acceptBid = useCallback(
+    async (bidId: any) => {
+      if (!nftPlatformContract || bidId == null) {
+        console.error("Contract not initialized or invalid parameters.");
+        return;
+      }
+
+      try {
+        // Send the transaction
+        const transaction = await nftPlatformContract.acceptBid(
+          bidId,
+          {
+            from: account,
+          }
+        );
+
+        // Wait for the transaction to be mined
+        await transaction.wait();
+        console.log("Bid accepted successfully");
+      } catch (err) {
+        console.error("Error accepting bid:", err);
+      }
+    },
+    [nftPlatformContract, account]
+  );
+
+  const repayLoan = useCallback(
     async (bidId: number) => {
       if (!nftPlatformContract || bidId == null) {
         console.error("Contract not initialized or invalid parameters.");
@@ -109,15 +135,35 @@ const usePlatformContract = () => {
 
       try {
         const id = bidId;
-        console.log(id);
 
-        const transaction = await nftPlatformContract.acceptBid(id, {
+        const transaction = await nftPlatformContract.repayLoan(id, {
           from: account,
         });
         await transaction.wait();
-        console.log("Bid accepted successfully");
+        console.log("Loan repaid successfully");
       } catch (err) {
-        console.error("Error accepting bid:", err);
+        console.error("Error repaying loan:", err);
+      }
+    },
+    [nftPlatformContract, account]
+  );
+
+  const defaultLoan = useCallback(
+    async (bidId: number) => {
+      if (!nftPlatformContract || bidId == null) {
+        console.error("Contract not initialized or invalid parameters.");
+        return;
+      }
+
+      try {
+        const id = bidId;
+        const transaction = await nftPlatformContract.defaultLoan(id, {
+          from: account,
+        });
+        await transaction.wait();
+        console.log("Loan defaulted successfully");
+      } catch (err) {
+        console.error("Error defaulting loan:", err);
       }
     },
     [nftPlatformContract, account]
@@ -134,7 +180,7 @@ const usePlatformContract = () => {
     }
   }, [nftPlatformContract]);
 
-  return { fetchBids, createBid, bids, acceptBid };
+  return { fetchBids, createBid, bids, acceptBid, repayLoan, defaultLoan };
 };
 
 export default usePlatformContract;

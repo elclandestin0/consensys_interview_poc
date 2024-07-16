@@ -140,7 +140,6 @@ contract NFTPlatform is IERC721Receiver {
         lenderAcceptedLoans[msg.sender][bidId].accepted = true;
 
         emit BidAccepted(bidId, msg.sender);
-
     }
 
     function repayLoan(uint32 bidId) public {

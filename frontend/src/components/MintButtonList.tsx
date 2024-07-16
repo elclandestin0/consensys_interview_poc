@@ -8,7 +8,7 @@ const MintButton = ({ token, onMint }) => {
       mb={4}
       width="100%"
     >
-      Mint {token.symbol} token
+      Mint {token.symbol}
     </Button>
   );
 };

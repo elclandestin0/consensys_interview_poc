@@ -22,7 +22,7 @@ const useCollateralTokenContract = () => {
     }
   };
 
-  const approve = useCallback(async () => {
+  const approve = useCallback(async (tokenId: any) => {
     if (!collateralTokenContract || !account) {
       console.error("Approve: Contract not initialized or invalid parameters.");
       return;

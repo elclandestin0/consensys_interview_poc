@@ -1,3 +1,4 @@
+import { useContracts } from "@/hooks/contracts/useContracts";
 import useERC721 from "@/hooks/contracts/useERC721";
 import { Box, Flex, Text, Stack } from "@chakra-ui/react";
 import { useSDK } from "@metamask/sdk-react";
@@ -7,16 +8,18 @@ const TokenInfo = (token: any) => {
   const [balance, setBalance] = useState(null);
   const { approvedTokens, fetchBalance } = useERC721();
   const { account } = useSDK();
+  const { signer } = useContracts();
 
   useEffect(() => {
+    if (!account) return;
     const fetchTokenBalance = async (symbol: any) => {
-        // get the balance of the token here
-        const balance = await fetchBalance(token.token.address, token.token.abi);
-        setBalance(balance);
+      // get the balance of the token here
+      const balance = await fetchBalance(token.token.address, token.token.abi);
+      setBalance(balance);
       console.log(token);
     };
 
-    fetchTokenBalance(token.token.symbol);
+    fetchTokenBalance(token.token.symbol); 
   }, [approvedTokens, fetchBalance, account]);
 
   return (
@@ -33,7 +36,7 @@ export const TokenList = ({ tokens }) => {
   return (
     <Stack spacing={4}>
       {tokens.map((token, index) => (
-        <TokenInfo key={index} token={token} />
+        <TokenInfo key={index} token={token} /> 
       ))}
     </Stack>
   );

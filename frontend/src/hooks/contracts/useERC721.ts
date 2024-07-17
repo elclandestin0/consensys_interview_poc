@@ -61,7 +61,7 @@ const useERC721 = () => {
         return null;
       }
     },
-    [provider, account]
+    [signer, account]
   );
 
   return {

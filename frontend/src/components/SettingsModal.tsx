@@ -81,9 +81,9 @@ const SettingsModal = () => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  {APPROVED_20_TOKENS.length > 0 && (
+                  {/* {APPROVED_20_TOKENS.length > 0 && (
                     <TokenList tokens={APPROVED_20_TOKENS} />
-                  )}
+                  )} */}
                   {APPROVED_721_TOKENS.length > 0 && (
                     <TokenList tokens={APPROVED_721_TOKENS} />
                   )}

@@ -11,18 +11,17 @@ const useCusdcContract = () => {
   const { account } = useSDK();
   const { nftPlatformAddress } = addresses.networks.linea_sepolia;
 
-  useEffect(() => {}, [cusdcContract, account]);
+  useEffect(() => {
+  }, [cusdcContract, account]);
 
   const fetchTokenBalance = async (
     address: string | undefined
   ): Promise<any> => {
-    console.log(cusdcContract);
-    if (!cusdcContract) {
-      console.error("Contract not initialized.");
+    if (cusdcContract == null) {
+      console.error("Fetch balance: Contract not initialized.");
       return null;
     }
     try {
-      // Invest in Aave Pool
       return await cusdcContract.balanceOf(address);
     } catch (error) {
       console.error("Error fetching pool reserve data:", error);
@@ -34,7 +33,7 @@ const useCusdcContract = () => {
   const approve = useCallback(
     async (askAmount: any) => {
       if (!cusdcContract || !account) {
-        console.error("Contract not initialized or invalid parameters.");
+        console.error("Approve: Contract not initialized or invalid parameters.");
         return;
       }
 
@@ -64,7 +63,7 @@ const useCusdcContract = () => {
 
   const mintTokens = async (): Promise<void> => {
     if (!cusdcContract) {
-      console.error("Contract not initialized.");
+      console.error("Mint: Contract not initialized.");
       return;
     }
     try {
@@ -80,7 +79,7 @@ const useCusdcContract = () => {
 
   const fetchTokenSymbol = async (): Promise<string | null> => {
     if (!cusdcContract) {
-      console.error("Contract not initialized.");
+      console.error("Fetch token symbol: Contract not initialized.");
       return null;
     }
     try {
@@ -92,11 +91,6 @@ const useCusdcContract = () => {
     }
   };
 
-  useEffect(() => {
-    if (cusdcContract) {
-      setIsLoading(false); // Set loading state before fetching
-    }
-  }, [cusdcContract]);
 
   return {
     fetchTokenBalance,

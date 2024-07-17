@@ -12,7 +12,7 @@ const useCollateralTokenContract = () => {
 
   const getCurrentTokenId = async () => {
     if (!collateralTokenContract) {
-      console.error("Contract not initialized!");
+      console.error("Get current tokenId: Contract not initialized!");
       return;
     }
     try {
@@ -24,7 +24,7 @@ const useCollateralTokenContract = () => {
 
   const approve = useCallback(async () => {
     if (!collateralTokenContract || !account) {
-      console.error("Contract not initialized or invalid parameters.");
+      console.error("Approve: Contract not initialized or invalid parameters.");
       return;
     }
 
@@ -50,7 +50,7 @@ const useCollateralTokenContract = () => {
 
   const mint = useCallback(async () => {
     if (!collateralTokenContract || !account) {
-      console.error("Contract not initialized or invalid parameters.");
+      console.error("Mint: Contract not initialized or invalid parameters.");
       return;
     }
 

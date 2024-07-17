@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 
-import {APPROVED_TOKENS} from '@/utils/approvedTokens';
+import { APPROVED_TOKENS } from "@/utils/approvedTokens";
 import * as dotenv from "dotenv";
 import { useSDK } from "@metamask/sdk-react";
+import { useContracts } from "./useContracts";
 
 dotenv.config();
 
@@ -11,28 +12,16 @@ const useERC721 = () => {
   const { account } = useSDK();
   const [approvedTokens, setApprovedTokens] = useState(APPROVED_TOKENS);
   const [provider, setProvider] = useState<any>(null);
-  const [signer, setSigner] = useState<any>(null);
+  const { signer } = useContracts();
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
-    const initProvider = async () => {
-      if (typeof window.ethereum !== "undefined") {
-        const web3Provider = new ethers.BrowserProvider(window.ethereum);
-        // await web3Provider.send("eth_requestAccounts", []); // Request account access
-        setProvider(web3Provider);
-        const signer = await web3Provider.getSigner();
-        setSigner(signer);
-      } else {
-        console.error("No provider set!");
-      }
-    };
-
-    initProvider();
-  }, [account]);
+    if (!signer) return;
+  }, [signer]);
 
   const mintToken = useCallback(
     async (contractAddress: string, abi: any) => {
-    console.log("minting token..");
+      console.log("minting token..");
       if (!signer) {
         setError("Signer not initialized");
         return;
@@ -56,17 +45,15 @@ const useERC721 = () => {
 
   const fetchBalance = useCallback(
     async (contractAddress: string, abi: any) => {
-      if (!provider) {
-        setError("Provider not initialized");
-        return;
-      }
+      console.log("...");
       try {
         const contract = new ethers.Contract(
           contractAddress,
           abi,
-          await provider.getSigner()
+          signer
         );
         const balance = await contract.balanceOf(account);
+        console.log(balance.toString());
         return balance.toString();
       } catch (err) {
         console.error("Error fetching balance:", err);

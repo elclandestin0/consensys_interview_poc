@@ -6,24 +6,19 @@ import { useEffect, useState } from "react";
 
 const TokenInfo = (token: any) => {
   const [balance, setBalance] = useState(null);
-  const { approvedTokens, fetchBalance } = useERC721();
+  const { fetchBalance } = useERC721();
   const { fetchTokenBalance } = useCusdcContract();
   const { account } = useSDK();
 
   useEffect(() => {
     const getBalance = async (symbol: any) => {
-      // if (approvedTokens.length > 0) {
-        const balance =
-          symbol == "Collateral NFT"
-            ? await fetchBalance(token.token.address, token.token.abi)
-            : await fetchTokenBalance(account);
-        setBalance(balance);
-      // }
-      console.log(token);
+      const balance = await fetchBalance(token.token.address, token.token.abi)
+      setBalance(balance);
     };
+    console.log(token);
 
     getBalance(token.token.symbol);
-  }, [approvedTokens, fetchBalance, account]);
+  }, [fetchBalance, account]);
 
   return (
     <Box p={4} borderWidth={1} borderRadius="lg" overflow="hidden" mb={4}>

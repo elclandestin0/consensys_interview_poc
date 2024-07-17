@@ -18,6 +18,9 @@ export function useContracts() {
   );
   const [collateralTokenContract, setCollateralTokenContract] =
     useState<ethers.Contract | null>(null);
+
+  const [signer, setSigner] = useState<any>(null);
+
   useEffect(() => {
     const initializeContracts = async () => {
       if (typeof window.ethereum !== "undefined") {
@@ -33,6 +36,8 @@ export function useContracts() {
           const signer = PRIVATE_KEY
             ? new ethers.Wallet(PRIVATE_KEY, infuraProvider)
             : await provider.getSigner();
+
+          setSigner(signer);
 
           const nftPlatform = new ethers.Contract(
             nftPlatformAddress,
@@ -55,6 +60,8 @@ export function useContracts() {
           setCusdcContract(cusdc);
           setNftPlatformContract(nftPlatform);
           setCollateralTokenContract(collateralToken);
+
+          console.log("contract initialized!");
         } catch (error) {
           console.error("Error initializing contracts:", error);
         }
@@ -66,5 +73,5 @@ export function useContracts() {
     initializeContracts();
   }, []);
 
-  return { collateralTokenContract, cusdcContract, nftPlatformContract };
+  return { collateralTokenContract, cusdcContract, nftPlatformContract, signer };
 }
